@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>通勤漢字 · JLPT N4 합격</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#fff;--surface:#f5f5f7;--card:#fff;
+  --ink:#0a0a0a;--ink2:#5b5b63;--ink3:#a7a7b0;--line:#e7e7ea;
+  --inv:#0a0a0a;--inv-ink:#fff;
+  --ko:"Pretendard","Pretendard Variable",-apple-system,sans-serif;
+  --jp:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;position:fixed;width:100%;overscroll-behavior:none}
+body{font-family:var(--ko);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+.jp{font-family:var(--jp)}
+#app{max-width:520px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);overflow:hidden}
+
+/* ── header ── */
+header{padding:16px 20px 12px;border-bottom:1px solid var(--line)}
+.ttl .jp-t{font-family:var(--jp);font-weight:700;font-size:17px;letter-spacing:.5px}
+.ttl .ko-t{font-size:11px;color:var(--ink2);letter-spacing:0.3px;margin-top:8px;font-weight:500;display:block}
+
+/* ── stats strip ── */
+.stats{display:flex;border-bottom:1px solid var(--line)}
+.stat{flex:1;text-align:center;padding:12px 4px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.stat .n{font-family:var(--jp);font-size:22px;font-weight:700;line-height:1}
+.stat .l{font-size:10.5px;color:var(--ink2);margin-top:5px;letter-spacing:0}
+.stat.dday .n{color:var(--ink)}
+/* pace bar */
+.pace-bar{padding:8px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);min-height:34px}
+.pace-bar .pval{font-family:var(--jp);font-weight:700;color:var(--ink);font-size:13px}
+.pace-bar .pwarn{color:#b45309}
+
+/* ── sections ── */
+section{display:none;flex:1;flex-direction:column}
+section.active{display:flex}
+section.tab-enter-right{animation:tabInRight .26s cubic-bezier(.22,.8,.32,1)}
+section.tab-enter-left{animation:tabInLeft .26s cubic-bezier(.22,.8,.32,1)}
+@keyframes tabInRight{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tabInLeft{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── study ── */
+#study{padding:14px 20px 6px}
+.pbar-wrap{position:relative;height:8px;background:var(--line);border-radius:4px;margin-bottom:5px;overflow:hidden}
+.pbar{height:100%;background:var(--ink);width:0;border-radius:4px;transition:width .35s}
+.session-counter{text-align:right;font-size:11px;color:var(--ink3);margin-bottom:12px;font-family:var(--ko)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;min-height:330px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;
+  cursor:pointer;position:relative;animation:rise .3s cubic-bezier(.2,.7,.3,1);
+  box-shadow:0 8px 28px -20px rgba(0,0,0,.45);transition:transform .1s}
+.card:active{transform:scale(.985)}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.lvtag{position:absolute;top:14px;right:14px;font-family:var(--jp);font-size:12px;font-weight:700;
+  color:var(--ink2);border:1.5px solid var(--line);border-radius:6px;padding:2px 8px}
+.word{font-family:var(--jp);font-weight:700;font-size:clamp(44px,14vw,72px);line-height:1.15;letter-spacing:0}
+.read-front{font-family:var(--jp);font-size:19px;color:var(--ink3);margin-top:12px;letter-spacing:1px;display:none}
+.tap-hint{position:absolute;bottom:18px;font-size:11.5px;color:var(--ink3);letter-spacing:0}
+/* reveal */
+#reading{font-family:var(--jp);font-size:21px;color:var(--ink2);margin-top:10px;letter-spacing:0;display:none}
+#meaningBlock{display:flex;flex-direction:column;align-items:center;width:100%;animation:fade .25s}
+.divider{width:36px;height:2px;background:var(--ink);opacity:.2;margin:15px 0;border-radius:2px}
+.meaning{font-size:22px;font-weight:700;text-align:center;line-height:1.4}
+.hanja{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.han-chip{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:9px 16px}
+.han-chip .hj{font-family:var(--jp);font-size:18px;font-weight:700}
+.han-chip .ar{color:var(--ink3);font-size:13px}
+.han-chip .ko{font-size:17px;font-weight:700}
+.tagline{font-size:11px;letter-spacing:0;color:var(--ink2);border:1px solid var(--line);border-radius:20px;padding:4px 14px;font-weight:500}
+/* audio btn */
+.audio-btn{position:absolute;top:14px;left:14px;width:32px;height:32px;border-radius:50%;
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink2);font-size:15px;
+  display:none;align-items:center;justify-content:center;cursor:pointer}
+.audio-btn.show{display:flex}
+.audio-btn:active{background:var(--surface)}
+/* trace layer */
+.trace-layer{position:absolute;inset:0;background:var(--card);border-radius:18px;display:none;
+  flex-direction:column;align-items:center;justify-content:center;padding:16px;z-index:6}
+.trace-layer.show{display:flex;animation:fade .2s}
+.trace-top{font-size:12px;color:var(--ink2);margin-bottom:12px;font-weight:600}
+.trace-stage{position:relative;width:min(68vw,240px);aspect-ratio:1;border:1px dashed var(--line);border-radius:12px;background:var(--bg)}
+.trace-guide{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--jp);font-weight:700;color:var(--ink);opacity:.1;pointer-events:none;user-select:none}
+#traceCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.trace-ctrls{display:flex;gap:22px;margin-top:16px;width:100%;justify-content:center}
+.trace-ctrls button{padding:11px 18px;border:1.5px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink2);font-family:var(--ko);font-weight:700;font-size:13px;cursor:pointer}
+.trace-ctrls button:last-child{padding:11px 30px;border-color:var(--inv);background:var(--inv);color:var(--inv-ink);font-size:14px}
+.jisho-link{font-size:11.5px;color:var(--ink3);text-decoration:none;margin-top:10px;display:flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:8px;padding:5px 12px}
+.jisho-link:active{background:var(--surface)}
+
+/* controls */
+.controls{padding:12px 20px 14px}
+.reveal-btn{width:100%;padding:17px;border:none;border-radius:13px;cursor:pointer;background:var(--inv);color:var(--inv-ink);font-family:var(--ko);font-size:16px;font-weight:700;letter-spacing:.5px;transition:transform .08s}
+.reveal-btn:active{transform:scale(.985)}
+#meaningCtrls{display:none}
+.grade-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;padding:0 2px}
+.grade-title{font-size:12px;color:var(--ink3);letter-spacing:0}
+.help-btn{background:none;border:1.5px solid var(--line);border-radius:50%;width:22px;height:22px;font-size:11px;color:var(--ink3);cursor:pointer;display:grid;place-items:center}
+.grade-row{display:flex;gap:9px}
+.grade{flex:1;padding:16px 6px 13px;border-radius:13px;cursor:pointer;font-family:var(--ko);display:flex;flex-direction:column;align-items:center;gap:5px;transition:transform .08s;border:1.5px solid var(--ink)}
+.grade:active{transform:scale(.96)}
+.grade .g-ko{font-size:17px;font-weight:700}
+.grade .g-iv{font-size:12px;opacity:.75}
+.g-again{background:var(--bg);color:var(--ink)}
+.g-hard{background:var(--ink2);color:var(--inv-ink);border-color:var(--ink2)}
+.g-good{background:var(--inv);color:var(--inv-ink);border-color:var(--inv)}
+.trace-cta{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink2);font-family:var(--ko);font-size:13.5px;font-weight:700;cursor:pointer;margin-bottom:9px}
+.trace-cta.hot{border-color:var(--ink);color:var(--ink);animation:pulse 1.7s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+/* done pane */
+.pane{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px 28px 70px}
+.pane .big{font-family:var(--jp);font-size:52px;font-weight:700;color:var(--ink3);margin-bottom:12px}
+.pane h2{font-size:22px;font-weight:700;margin-bottom:8px}
+.pane p{color:var(--ink2);font-size:13.5px;line-height:1.7;max-width:300px}
+.pane button{margin-top:20px;padding:12px 26px;border:1.5px solid var(--ink);border-radius:11px;background:var(--bg);color:var(--ink);font-family:var(--ko);font-size:14px;font-weight:700;cursor:pointer}
+.session-stats{display:flex;gap:24px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+.sstat{text-align:center}
+.sstat .sv{font-family:var(--jp);font-size:22px;font-weight:700}
+.sstat .sl{font-size:10.5px;color:var(--ink2);margin-top:4px}
+
+/* ── shared scroll ── */
+.scroll{flex:1;overflow-y:auto;padding:18px 20px 90px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sec-title{font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:0.5px;margin:24px 0 10px;text-transform:uppercase}
+.sec-title:first-child{margin-top:0}
+.count-pill{font-family:var(--jp);font-weight:700;color:var(--ink);margin-left:6px}
+.wlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.wrow{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.wrow:last-child{border-bottom:none}
+.wrow .wj{font-family:var(--jp);font-weight:700;font-size:19px;min-width:72px}
+.wrow .wmid{flex:1;min-width:0}
+.wrow .wr{font-family:var(--jp);font-size:12.5px;color:var(--ink3);letter-spacing:0;line-height:1.3}
+.wrow .wm{font-size:14.5px;font-weight:600;margin-top:3px;line-height:1.4}
+.wrow .wlv{font-family:var(--jp);font-size:11px;font-weight:700;color:var(--ink3);border:1px solid var(--line);border-radius:5px;padding:1px 6px;flex:none}
+.empty-note{color:var(--ink3);font-size:14px;padding:28px 6px;text-align:center;line-height:1.7}
+.empty-btn{margin-top:14px;display:inline-block;padding:9px 18px;border:1.5px solid var(--ink);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink);background:var(--bg);cursor:pointer}
+
+/* forecast */
+.forecast{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.frow{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card)}
+.frow .fday{font-size:14px;font-weight:600}
+.frow .fbar-wrap{flex:1;margin:0 12px;height:6px;background:var(--surface);border-radius:3px;overflow:hidden}
+.frow .fbar{height:100%;background:var(--ink);border-radius:3px}
+.frow .fcnt{font-family:var(--jp);font-weight:700;font-size:14px;min-width:22px;text-align:right}
+
+/* records */
+.summary{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:6px}
+.sm{flex:1;text-align:center;padding:14px 4px;border-right:1px solid var(--line)}
+.sm:last-child{border-right:none}
+.sm .n{font-family:var(--jp);font-size:24px;font-weight:700}
+.sm .l{font-size:10px;color:var(--ink2);margin-top:5px;letter-spacing:.5px}
+.hist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.hrow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.hrow:last-child{border-bottom:none}
+.hrow .hdate{font-size:13px;font-weight:600;min-width:76px}
+.hbar-wrap{flex:1;height:8px;background:var(--surface);border-radius:4px;overflow:hidden;display:flex}
+.hbar-new{height:100%;background:var(--ink)}
+.hbar-rev{height:100%;background:var(--ink3)}
+.hrow .hnum{font-family:var(--jp);font-size:13.5px;font-weight:700;min-width:28px;text-align:right}
+.legend{display:flex;gap:14px;justify-content:center;margin-top:11px;font-size:11px;color:var(--ink2)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+/* scope disclaimer */
+.scope-note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:6px;font-size:13px;color:var(--ink2);line-height:1.65}
+.scope-note strong{color:var(--ink);font-size:13px}
+.scope-note a{color:var(--ink2)}
+
+/* ── words tab ── */
+.wfilter-wrap{padding:14px 20px 0;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line);background:var(--bg)}
+.wsearch{width:100%;padding:10px 38px 10px 14px;border:1.5px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink);font-family:var(--ko);font-size:14px;outline:none}
+.wsearch:focus{border-color:var(--ink)}
+.wsearch-wrap{position:relative}
+.wsearch-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;border:none;border-radius:50%;background:var(--surface);color:var(--ink3);font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center}
+.wsearch-clear.show{display:flex}
+.wchips{display:flex;gap:7px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+.wchips::-webkit-scrollbar{display:none}
+.wchip{flex:none;padding:7px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;white-space:nowrap}
+.wchip.on{border-color:var(--ink);color:var(--ink);background:var(--surface)}
+.w-scroll{flex:1;overflow-y:auto;padding:16px 20px 90px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.w-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.w-top .wt-n{font-family:var(--jp);font-size:24px;font-weight:700}
+.w-top .wt-l{font-size:11px;color:var(--ink2);margin-top:4px}
+.w-top .wt-leg{font-size:11px;color:var(--ink3);text-align:right;line-height:1.5}
+.wsec-head{display:flex;align-items:flex-end;justify-content:space-between;margin:20px 0 12px}
+.wsec-head:first-of-type{margin-top:0}
+.wsec-title{font-family:var(--jp);font-size:19px;font-weight:700}
+.wsec-meta{font-size:11px;color:var(--ink2)}
+.wsec-bar{height:4px;background:var(--line);border-radius:2px;margin:0 0 14px;display:flex;overflow:hidden;border-radius:2px}
+.b-done{height:100%;background:var(--ink)}
+.b-prog{height:100%;background:var(--ink3)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:15px 10px;justify-items:center}
+.node{width:58px;height:58px;border-radius:50%;border:none;padding:0;cursor:pointer;position:relative;background:conic-gradient(var(--ink) calc(var(--pct,0)*1%),var(--line) 0);transition:transform .1s}
+.node:active{transform:scale(.93)}
+.node .inner{position:absolute;inset:4px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.node .kj{font-family:var(--jp);font-weight:700;font-size:20px;color:var(--ink);line-height:1}
+.node.new{background:var(--line)}
+.node.new .inner{border:1.5px dashed var(--ink3);background:var(--bg)}
+.node.new .kj{color:var(--ink3)}
+.node.done .inner{background:var(--ink)}
+.node.done .kj{color:var(--bg)}
+.node.due::after{content:"";position:absolute;top:-1px;right:-1px;width:13px;height:13px;border-radius:50%;background:var(--ink);border:2.5px solid var(--bg)}
+.node-wrap{display:flex;flex-direction:column;align-items:center}
+.node-cap{font-size:10.5px;color:var(--ink3);margin-top:5px;text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.no-results{text-align:center;color:var(--ink3);padding:32px;font-size:14px}
+/* word detail sheet */
+#wSheetBody{display:flex;flex-direction:column;align-items:center;text-align:center}
+.ws-kj{font-family:var(--jp);font-size:50px;font-weight:700;line-height:1.1}
+.ws-r{font-family:var(--jp);font-size:19px;color:var(--ink2);margin-top:6px;letter-spacing:0}
+.ws-m{font-size:21px;font-weight:700;margin-top:8px}
+.ws-tag{font-size:11px;color:var(--ink2);border:1px solid var(--line);border-radius:20px;padding:3px 11px;margin-top:12px}
+.ws-mastery{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:20px;width:100%;padding-top:16px;border-top:1px solid var(--line)}
+.ws-dots{display:flex;gap:7px}
+.ws-dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.ws-dots i.on{background:var(--ink)}
+.ws-mlabel{font-size:14px;font-weight:700}
+.ws-sub{font-size:11.5px;color:var(--ink2)}
+.ws-actions{display:flex;gap:10px;margin-top:16px;width:100%}
+.ws-actions a,.ws-actions button{flex:1;padding:11px;border:1.5px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink2);font-family:var(--ko);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center}
+
+/* ── tab bar ── */
+.tabbar{position:sticky;bottom:0;display:flex;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;background:none;border:none;cursor:pointer;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink3);font-family:var(--ko);transition:color .2s}
+.tab.on{color:var(--ink)}
+.tab .ti{font-size:18px;font-family:var(--jp);line-height:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.tab .ti-gear{height:18px;width:18px;display:flex;align-items:center;justify-content:center;color:currentColor}
+.tab .ti-gear svg{width:18px;height:18px}
+.tab .tl{font-size:10px;font-weight:600}
+
+/* ── settings sheet ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:40}
+.overlay.show{display:block;animation:fade .2s}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:520px;margin:0 auto;
+  background:var(--bg);border-radius:20px 20px 0 0;border-top:1px solid var(--line);
+  padding:20px 20px calc(24px + env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.7,.3,1);
+  max-height:90dvh;overflow-y:auto}
+.sheet.show{transform:none}
+.handle{width:40px;height:5px;background:var(--line);border-radius:3px;margin:0 auto 14px}
+.sheet h3{font-size:18px;font-weight:700;margin-bottom:14px}
+.opt{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+.opt:last-of-type{border-bottom:none}
+.o-lbl{font-size:14.5px;font-weight:600}
+.o-desc{font-size:11.5px;color:var(--ink2);margin-top:3px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--card);font-size:18px;color:var(--ink);cursor:pointer}
+.stepper .val{font-family:var(--jp);font-size:18px;font-weight:700;min-width:28px;text-align:center}
+.levels{display:flex;gap:7px}
+.lvchip{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font-family:var(--jp);font-weight:700;font-size:14px;color:var(--ink3);cursor:pointer;text-align:center}
+.lvchip.on{border-color:var(--ink);color:var(--ink)}
+.toggle{width:50px;height:30px;border-radius:16px;background:var(--line);position:relative;cursor:pointer;transition:background .2s;flex:none}
+.toggle.on{background:var(--ink)}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--bg);transition:transform .2s}
+.toggle.on::after{transform:translateX(20px)}
+.date-input{padding:7px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font-family:var(--ko);font-size:14px;font-weight:600;width:140px}
+.sheet-btns{display:flex;gap:8px;margin-top:16px}
+.sheet-btns button{flex:1;padding:11px;border-radius:11px;font-family:var(--ko);font-size:13px;font-weight:600;cursor:pointer}
+.btn-out{border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.btn-danger{border:1px solid var(--ink3);background:var(--card);color:var(--ink3)}
+.save-note{font-size:11px;color:var(--ink3);text-align:center;margin-top:12px;line-height:1.5}
+.info-block{background:var(--surface);border-radius:11px;padding:13px 14px;margin-top:10px;font-size:12.5px;color:var(--ink2);line-height:1.65;border:1px solid var(--line)}
+.info-block strong{color:var(--ink);font-size:12.5px;display:block;margin-bottom:5px}
+
+/* ── milestone popup ── */
+#milestonePopup{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--inv);color:var(--inv-ink);border-radius:14px;padding:13px 22px;
+  font-size:14.5px;font-weight:700;z-index:80;display:none;white-space:nowrap;max-width:90vw;
+  box-shadow:0 8px 24px -8px rgba(0,0,0,.5);text-align:center}
+#milestonePopup.show{display:block;animation:popIn .4s cubic-bezier(.2,.7,.3,1)}
+@keyframes popIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── grade help popup ── */
+#gradeHelp{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;display:none;align-items:flex-end;padding-bottom:env(safe-area-inset-bottom)}
+#gradeHelp.show{display:flex;animation:fade .2s}
+.gh-card{background:var(--bg);width:100%;max-width:520px;margin:0 auto;border-radius:20px 20px 0 0;padding:22px 22px 24px}
+.gh-card h3{font-size:17px;font-weight:700;margin-bottom:16px}
+.gh-row{display:flex;align-items:flex-start;gap:13px;margin-bottom:14px}
+.gh-row:last-child{margin-bottom:0}
+.gh-badge{min-width:52px;padding:8px 4px;border-radius:10px;text-align:center;font-size:14px;font-weight:700;border:1.5px solid var(--ink)}
+.gh-badge.again{background:var(--bg);color:var(--ink)}
+.gh-badge.hard{background:var(--ink2);color:#fff;border-color:var(--ink2)}
+.gh-badge.good{background:var(--inv);color:var(--inv-ink);border-color:var(--inv)}
+.gh-row p{font-size:13px;color:var(--ink2);line-height:1.6;flex:1}
+.gh-close{width:100%;padding:13px;border:1.5px solid var(--ink);border-radius:11px;background:var(--bg);color:var(--ink);font-family:var(--ko);font-weight:700;font-size:14px;cursor:pointer;margin-top:16px}
+
+/* ── confirm modal ── */
+#confirmModal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90;display:none;align-items:flex-end;padding-bottom:env(safe-area-inset-bottom)}
+#confirmModal.show{display:flex;animation:fade .2s}
+.cm-card{background:var(--bg);width:100%;max-width:520px;margin:0 auto;border-radius:20px 20px 0 0;padding:24px 22px 24px}
+.cm-card p{font-size:14.5px;color:var(--ink);line-height:1.6;margin-bottom:20px}
+.cm-btns{display:flex;gap:10px}
+.cm-btns button{flex:1;padding:13px;border-radius:11px;font-family:var(--ko);font-size:14px;font-weight:700;cursor:pointer}
+.cm-cancel{border:1.5px solid var(--line);background:var(--card);color:var(--ink2)}
+.cm-ok{border:1.5px solid var(--ink);background:var(--inv);color:var(--inv-ink)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── milestone popup ── -->
+<div id="milestonePopup"></div>
+
+<!-- ── confirm modal ── -->
+<div id="confirmModal">
+  <div class="cm-card">
+    <p id="confirmMsg"></p>
+    <div class="cm-btns">
+      <button class="cm-cancel" onclick="hideConfirm(false)">취소</button>
+      <button class="cm-ok" onclick="hideConfirm(true)">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── grade help popup ── -->
+<div id="gradeHelp" onclick="hideGradeHelp()">
+<div class="gh-card" onclick="event.stopPropagation()">
+  <h3>채점 기준</h3>
+  <div class="gh-row"><div class="gh-badge again">모름</div><p>읽기나 뜻을 기억하지 못했습니다. 이번 세션에 곧 다시 나옵니다.</p></div>
+  <div class="gh-row"><div class="gh-badge hard">애매</div><p>어느 정도 알지만 자신 없습니다. 약 1~2일 후 복습합니다.</p></div>
+  <div class="gh-row"><div class="gh-badge good">알아</div><p>읽기와 뜻을 자신있게 말할 수 있습니다. 간격이 늘어납니다.</p></div>
+  <p style="font-size:12px;color:var(--ink3);margin-top:14px;line-height:1.6">기준을 엄격하게 적용할수록 장기 기억에 효과적입니다. 조금이라도 불확실하면 "애매"를 누르세요.</p>
+  <button class="gh-close" onclick="hideGradeHelp()">닫기</button>
+</div>
+</div>
+
+<!-- ── header ── -->
+<header>
+  <div class="ttl"><span class="jp-t">N4 合格</span><span class="ko-t">JLPT N4 합격 단어장</span></div>
+</header>
+
+<!-- ── stats strip ── -->
+<div class="stats">
+  <div class="stat"><div class="n" id="sDue">0</div><div class="l">복습 대기</div></div>
+  <div class="stat"><div class="n" id="sLearned">0</div><div class="l">학습한 단어</div></div>
+  <div class="stat"><div class="n" id="sStreak">0</div><div class="l">연속 일수</div></div>
+  <div class="stat dday"><div class="n" id="sDday">—</div><div class="l">시험까지</div></div>
+</div>
+<div class="pace-bar" id="paceBar"></div>
+
+<!-- ── study ── -->
+<section id="study" class="active">
+  <div class="pbar-wrap"><div class="pbar" id="pbar"></div></div>
+  <div class="session-counter" id="sessionCounter"></div>
+  <div class="card" id="card" onclick="advance()">
+    <span class="lvtag" id="cardLv">N5</span>
+    <button class="audio-btn" id="audioBtn" onclick="event.stopPropagation();speakCurrent()">🔊</button>
+    <div class="word jp" id="word">時間</div>
+    <div id="reading" class="jp"></div>
+    <div id="meaningBlock" style="display:none">
+      <div class="divider"></div>
+      <div class="meaning" id="meaning"></div>
+      <div class="hanja" id="hanja"></div>
+    </div>
+    <div class="tap-hint" id="tapHint">읽기를 떠올린 뒤 탭</div>
+    <div class="trace-layer" id="traceLayer">
+      <div class="trace-top">획 순서대로 손가락으로 따라 그어보세요</div>
+      <div class="trace-stage">
+        <div class="trace-guide jp" id="traceGuide"></div>
+        <canvas id="traceCanvas"></canvas>
+      </div>
+      <div class="trace-ctrls">
+        <button onclick="clearTrace(event)">지우기</button>
+        <button onclick="closeTrace(event)">완료</button>
+      </div>
+      <a id="jishoLink" class="jisho-link" target="_blank" rel="noopener">획 순서 사전에서 확인 →</a>
+    </div>
+  </div>
+  <div class="controls" id="controls">
+    <button class="reveal-btn" id="revealBtn" onclick="advance()">읽기 확인</button>
+    <div id="meaningCtrls">
+      <button class="trace-cta" id="traceBtn" onclick="openTrace()">✍ 손가락으로 따라쓰기</button>
+      <div class="grade-header">
+        <span class="grade-title">채점</span>
+        <button class="help-btn" onclick="showGradeHelp()">?</button>
+      </div>
+      <div class="grade-row" id="gradeRow">
+        <button class="grade g-again" onclick="grade(0)"><span class="g-ko">모름</span><span class="g-iv" id="ivAgain">다시</span></button>
+        <button class="grade g-hard" onclick="grade(1)"><span class="g-ko">애매</span><span class="g-iv" id="ivHard">1일</span></button>
+        <button class="grade g-good" onclick="grade(2)"><span class="g-ko">알아</span><span class="g-iv" id="ivGood">2일</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="pane" id="emptyPane" style="display:none">
+    <div class="big jp">了</div>
+    <h2 id="paneTitle">오늘 학습 완료</h2>
+    <p id="paneText"></p>
+    <div class="session-stats" id="sessionStats"></div>
+    <button id="paneBtn" onclick="extraSession()">조금 더 하기</button>
+  </div>
+</section>
+
+<!-- ── review ── -->
+<section id="review">
+  <div class="scroll" id="reviewScroll"></div>
+</section>
+
+<!-- ── records ── -->
+<section id="records">
+  <div class="scroll" id="recordsScroll"></div>
+</section>
+
+<!-- ── words ── -->
+<section id="words">
+  <div class="wfilter-wrap">
+    <div class="wsearch-wrap">
+      <input class="wsearch" id="wsearch" placeholder="단어·뜻 검색..." oninput="renderWordsFiltered()">
+      <button class="wsearch-clear" id="wsearchClear" onclick="clearWSearch()" aria-label="검색어 지우기">✕</button>
+    </div>
+    <div class="wchips" id="wchips"></div>
+  </div>
+  <div class="w-scroll" id="wordsScroll"></div>
+</section>
+
+<!-- ── settings ── -->
+<section id="settings">
+  <div class="scroll" id="settingsScroll">
+    <div class="opt">
+      <div><div class="o-lbl">하루 새 단어</div><div class="o-desc">복습은 별도로 누적됩니다</div></div>
+      <div class="stepper"><button onclick="changeNew(-5)">−</button><span class="val" id="newVal">15</span><button onclick="changeNew(5)">+</button></div>
+    </div>
+    <div class="opt" style="flex-direction:column;align-items:stretch;gap:10px">
+      <div class="o-lbl">학습 레벨</div>
+      <div class="levels">
+        <div class="lvchip" data-lv="N5" onclick="toggleLv('N5')">N5</div>
+        <div class="lvchip" data-lv="N4" onclick="toggleLv('N4')">N4</div>
+      </div>
+    </div>
+    <div class="opt">
+      <div><div class="o-lbl">시험 날짜</div><div class="o-desc">D-day 계산에 사용됩니다</div></div>
+      <input type="date" class="date-input" id="examDateInput" onchange="changeExamDate(this.value)">
+    </div>
+    <div class="opt">
+      <div><div class="o-lbl">읽기 인출 단계</div><div class="o-desc">뜻 전에 읽기를 먼저 떠올리게 합니다</div></div>
+      <div class="toggle" id="recallToggle" onclick="toggleRecall()"></div>
+    </div>
+    <div class="opt">
+      <div><div class="o-lbl">앞면에 읽기 표시</div><div class="o-desc">켜면 인출 단계는 자동 생략됩니다</div></div>
+      <div class="toggle" id="furiToggle" onclick="toggleFuri()"></div>
+    </div>
+    <div class="sec-title">데이터 백업</div>
+    <div class="info-block">
+      HTML 파일을 새로 만들거나 수정하더라도, 아래에서 학습 기록을 내보낸 뒤 다음 버전에 가져오면 진도가 그대로 이어집니다.
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-out" onclick="exportData()">⬇ 전체 데이터 내보내기 (JSON)</button>
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-out" onclick="document.getElementById('importFile').click()">⬆ 데이터 가져오기 (JSON)</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-out" onclick="exportCSV()">기록 CSV 내보내기</button>
+    </div>
+    <div class="info-block">
+      <strong>⚠️ 학습 범위 안내</strong>
+      JLPT N4는 <strong>어휘(25%)</strong> 외에 <strong>문법(26%) · 독해(25%) · 청해(25%)</strong>도 출제됩니다. 이 앱은 어휘 영역만 커버하므로, 문법과 청해는 별도 학습이 반드시 필요합니다.<br>
+      <span style="margin-top:6px;display:block">추천 문법 자료: 겐키(Genki), 민나노니홍고, Bunpro</span>
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-danger" onclick="resetAll()">진도 초기화</button>
+    </div>
+    <div class="save-note" id="saveNote"></div>
+  </div>
+</section>
+
+<!-- ── tab bar ── -->
+<nav class="tabbar">
+  <button class="tab on" data-tab="study" onclick="switchTab('study')"><span class="ti">字</span><span class="tl">학습</span></button>
+  <button class="tab" data-tab="review" onclick="switchTab('review')"><span class="ti">復</span><span class="tl">복습</span></button>
+  <button class="tab" data-tab="records" onclick="switchTab('records')"><span class="ti">録</span><span class="tl">기록</span></button>
+  <button class="tab" data-tab="words" onclick="switchTab('words')"><span class="ti">全</span><span class="tl">단어</span></button>
+  <button class="tab" data-tab="settings" onclick="switchTab('settings')"><span class="ti ti-gear"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.60,2.84 L17.35,4.39 L16.03,6.27 L17.73,7.97 L19.61,6.65 L21.16,10.40 L18.90,10.80 L18.90,13.20 L21.16,13.60 L19.61,17.35 L17.73,16.03 L16.03,17.73 L17.35,19.61 L13.60,21.16 L13.20,18.90 L10.80,18.90 L10.40,21.16 L6.65,19.61 L7.97,17.73 L6.27,16.03 L4.39,17.35 L2.84,13.60 L5.10,13.20 L5.10,10.80 L2.84,10.40 L4.39,6.65 L6.27,7.97 L7.97,6.27 L6.65,4.39 L10.40,2.84 L10.80,5.10 L13.20,5.10 Z"/><circle cx="12" cy="12" r="3.1"/></svg></span><span class="tl">설정</span></button>
+</nav>
+</div>
+
+<!-- ── word detail ── -->
+<div class="overlay" id="wOverlay" onclick="closeWord()"></div>
+<div class="sheet" id="wSheet">
+  <div class="handle"></div>
+  <div id="wSheetBody"></div>
+</div>
+
+<script>
+const WORDS=[
+{j:"ああ",r:"ああ",m:"아!·오!(감탄)",lv:"N5",tag:"kun"},
+{j:"会う",r:"あう",m:"만나다",lv:"N5",tag:"kun"},
+{j:"青",r:"あお",m:"파랑",lv:"N5",tag:"kun"},
+{j:"青い",r:"あおい",m:"파랗다",lv:"N5",tag:"kun"},
+{j:"赤",r:"あか",m:"빨강",lv:"N5",tag:"kun"},
+{j:"赤い",r:"あかい",m:"빨갛다",lv:"N5",tag:"kun"},
+{j:"明るい",r:"あかるい",m:"밝다·명랑하다",lv:"N5",tag:"kun"},
+{j:"秋",r:"あき",m:"가을",lv:"N5",tag:"kun"},
+{j:"開く",r:"あく",m:"열리다",lv:"N5",tag:"kun"},
+{j:"開ける",r:"あける",m:"열다",lv:"N5",tag:"kun"},
+{j:"上げる",r:"あげる",m:"올리다·들다",lv:"N5",tag:"kun"},
+{j:"朝",r:"あさ",m:"아침",lv:"N5",tag:"kun"},
+{j:"朝御飯",r:"あさごはん",m:"아침밥",lv:"N5",tag:"kun"},
+{j:"明後日",r:"あさって",m:"모레",lv:"N5",tag:"kun"},
+{j:"足",r:"あし",m:"발·다리",lv:"N5",tag:"kun"},
+{j:"明日",r:"あした",m:"내일",lv:"N5",tag:"kun"},
+{j:"あそこ",r:"あそこ",m:"저기·저곳",lv:"N5",tag:"kun"},
+{j:"遊ぶ",r:"あそぶ",m:"놀다",lv:"N5",tag:"kun"},
+{j:"暖かい",r:"あたたかい",m:"따뜻하다",lv:"N5",tag:"kun"},
+{j:"頭",r:"あたま",m:"머리",lv:"N5",tag:"kun"},
+{j:"新しい",r:"あたらしい",m:"새롭다",lv:"N5",tag:"kun"},
+{j:"あちら",r:"あちら",m:"저쪽(공손)",lv:"N5",tag:"kun"},
+{j:"暑い",r:"あつい",m:"덥다",lv:"N5",tag:"kun"},
+{j:"熱い",r:"あつい",m:"뜨겁다",lv:"N5",tag:"kun"},
+{j:"厚い",r:"あつい",m:"두껍다·두텁다",lv:"N5",tag:"kun"},
+{j:"あっち",r:"あっち",m:"저쪽",lv:"N5",tag:"kun"},
+{j:"後",r:"あと",m:"나중·뒤·이후",lv:"N5",tag:"kun"},
+{j:"あなた",r:"あなた",m:"당신",lv:"N5",tag:"kun"},
+{j:"兄",r:"あに",m:"형·오빠(자기 손위 남자형제)",lv:"N5",tag:"kun"},
+{j:"姉",r:"あね",m:"누나·언니(자기 손위 여자형제)",lv:"N5",tag:"kun"},
+{j:"アパート",r:"アパート",m:"아파트·연립주택",lv:"N5",tag:"kana"},
+{j:"あの",r:"あの",m:"저(저~)",lv:"N5",tag:"kun"},
+{j:"浴びる",r:"あびる",m:"(물을) 끼얹다·샤워하다",lv:"N5",tag:"kun"},
+{j:"危ない",r:"あぶない",m:"위험하다",lv:"N5",tag:"kun"},
+{j:"甘い",r:"あまい",m:"달다·무르다",lv:"N5",tag:"kun"},
+{j:"余り",r:"あまり",m:"그다지(부정)·나머지",lv:"N5",tag:"kun"},
+{j:"雨",r:"あめ",m:"비",lv:"N5",tag:"kun"},
+{j:"飴",r:"あめ",m:"사탕·엿",lv:"N5",tag:"kun"},
+{j:"洗う",r:"あらう",m:"씻다·빨다",lv:"N5",tag:"kun"},
+{j:"在る",r:"ある",m:"있다",lv:"N5",tag:"kun"},
+{j:"有る",r:"ある",m:"있다·가지다",lv:"N5",tag:"kun"},
+{j:"歩く",r:"あるく",m:"걷다",lv:"N5",tag:"kun"},
+{j:"あれ",r:"あれ",m:"저것",lv:"N5",tag:"kun"},
+{j:"いい",r:"いい",m:"좋다",lv:"N5",tag:"kun"},
+{j:"いいえ",r:"いいえ",m:"아니요",lv:"N5",tag:"kun"},
+{j:"言う",r:"いう",m:"말하다",lv:"N5",tag:"kun"},
+{j:"家",r:"いえ",m:"집",lv:"N5",tag:"kun"},
+{j:"いかが",r:"いかが",m:"어떻게(어떠세요)",lv:"N5",tag:"kun"},
+{j:"行く",r:"いく",m:"가다",lv:"N5",tag:"kun"},
+{j:"いくつ",r:"いくつ",m:"몇 개·몇 살",lv:"N5",tag:"kun"},
+{j:"いくら",r:"いくら",m:"얼마",lv:"N5",tag:"kun"},
+{j:"池",r:"いけ",m:"연못",lv:"N5",tag:"kun"},
+{j:"医者",r:"いしゃ",m:"의사",lv:"N5",k:"의자",tag:"han"},
+{j:"椅子",r:"いす",m:"의자",lv:"N5",k:"의자",tag:"han"},
+{j:"忙しい",r:"いそがしい",m:"바쁘다",lv:"N5",tag:"kun"},
+{j:"痛い",r:"いたい",m:"아프다",lv:"N5",tag:"kun"},
+{j:"一",r:"いち",m:"하나·일",lv:"N5",k:"일",tag:"han"},
+{j:"一日",r:"いちにち",m:"하루·1일",lv:"N5",k:"일일",tag:"han"},
+{j:"一番",r:"いちばん",m:"가장·제일·1번",lv:"N5",k:"일번",tag:"han"},
+{j:"いつ",r:"いつ",m:"언제",lv:"N5",tag:"kun"},
+{j:"五日",r:"いつか",m:"닷새·5일",lv:"N5",tag:"kun"},
+{j:"一緒",r:"いっしょ",m:"함께·같이",lv:"N5",k:"일서",tag:"han"},
+{j:"五つ",r:"いつつ",m:"다섯(개)",lv:"N5",tag:"kun"},
+{j:"いつも",r:"いつも",m:"늘·항상",lv:"N5",tag:"kun"},
+{j:"犬",r:"いぬ",m:"개",lv:"N5",tag:"kun"},
+{j:"今",r:"いま",m:"지금",lv:"N5",tag:"kun"},
+{j:"意味",r:"いみ",m:"의미·뜻",lv:"N5",k:"의미",tag:"han"},
+{j:"妹",r:"いもうと",m:"여동생",lv:"N5",tag:"kun"},
+{j:"嫌",r:"いや",m:"싫음·불쾌함",lv:"N5",tag:"kun"},
+{j:"入口",r:"いりぐち",m:"입구",lv:"N5",k:"입구",tag:"han"},
+{j:"居る",r:"いる",m:"(사람·동물이) 있다",lv:"N5",tag:"kun"},
+{j:"要る",r:"いる",m:"필요하다",lv:"N5",tag:"kun"},
+{j:"入れる",r:"いれる",m:"넣다",lv:"N5",tag:"kun"},
+{j:"色",r:"いろ",m:"색·색깔",lv:"N5",tag:"kun"},
+{j:"色々",r:"いろいろ",m:"여러 가지",lv:"N5",tag:"kun"},
+{j:"上",r:"うえ",m:"위",lv:"N5",tag:"kun"},
+{j:"後ろ",r:"うしろ",m:"뒤·뒤쪽",lv:"N5",tag:"kun"},
+{j:"薄い",r:"うすい",m:"얇다·연하다",lv:"N5",tag:"kun"},
+{j:"歌",r:"うた",m:"노래",lv:"N5",tag:"kun"},
+{j:"歌う",r:"うたう",m:"노래하다",lv:"N5",tag:"kun"},
+{j:"うち",r:"うち",m:"집·우리 쪽",lv:"N5",tag:"kun"},
+{j:"生まれる",r:"うまれる",m:"태어나다",lv:"N5",tag:"kun"},
+{j:"海",r:"うみ",m:"바다",lv:"N5",tag:"kun"},
+{j:"売る",r:"うる",m:"팔다",lv:"N5",tag:"kun"},
+{j:"うるさい",r:"うるさい",m:"시끄럽다·성가시다",lv:"N5",tag:"kun"},
+{j:"上着",r:"うわぎ",m:"겉옷·재킷",lv:"N5",tag:"kun"},
+{j:"絵",r:"え",m:"그림",lv:"N5",tag:"kun"},
+{j:"映画",r:"えいが",m:"영화",lv:"N5",k:"영화",tag:"han"},
+{j:"映画館",r:"えいがかん",m:"영화관",lv:"N5",k:"영화관",tag:"han"},
+{j:"英語",r:"えいご",m:"영어",lv:"N5",k:"영어",tag:"han"},
+{j:"ええ",r:"ええ",m:"네·예",lv:"N5",tag:"kun"},
+{j:"駅",r:"えき",m:"역",lv:"N5",k:"역",tag:"han"},
+{j:"エレベーター",r:"エレベーター",m:"엘리베이터",lv:"N5",tag:"kana"},
+{j:"～円",r:"～えん",m:"엔(일본 화폐)",lv:"N5",k:"원",tag:"han"},
+{j:"鉛筆",r:"えんぴつ",m:"연필",lv:"N5",k:"연필",tag:"han"},
+{j:"お～",r:"お～",m:"(공손·존경) 접두어",lv:"N5",tag:"kun"},
+{j:"美味しい",r:"おいしい",m:"맛있다",lv:"N5",tag:"kun"},
+{j:"多い",r:"おおい",m:"많다",lv:"N5",tag:"kun"},
+{j:"大きい",r:"おおきい",m:"크다",lv:"N5",tag:"kun"},
+{j:"大きな",r:"おおきな",m:"큰",lv:"N5",tag:"kun"},
+{j:"大勢",r:"おおぜい",m:"많은 사람·여럿",lv:"N5",tag:"kun"},
+{j:"お母さん",r:"おかあさん",m:"어머니",lv:"N5",tag:"kun"},
+{j:"お菓子",r:"おかし",m:"과자·간식",lv:"N5",tag:"kun"},
+{j:"お金",r:"おかね",m:"돈",lv:"N5",tag:"kun"},
+{j:"起きる",r:"おきる",m:"일어나다·발생하다",lv:"N5",tag:"kun"},
+{j:"置く",r:"おく",m:"놓다·두다",lv:"N5",tag:"kun"},
+{j:"奥さん",r:"おくさん",m:"(남의) 부인",lv:"N5",tag:"kun"},
+{j:"お酒",r:"おさけ",m:"술",lv:"N5",tag:"kun"},
+{j:"お皿",r:"おさら",m:"접시",lv:"N5",tag:"kun"},
+{j:"伯父",r:"おじさん",m:"아저씨·삼촌",lv:"N5",tag:"kun"},
+{j:"おじいさん",r:"おじいさん",m:"할아버지",lv:"N5",tag:"kun"},
+{j:"教える",r:"おしえる",m:"가르치다",lv:"N5",tag:"kun"},
+{j:"押す",r:"おす",m:"밀다·누르다",lv:"N5",tag:"kun"},
+{j:"遅い",r:"おそい",m:"느리다·늦다",lv:"N5",tag:"kun"},
+{j:"お茶",r:"おちゃ",m:"차(녹차)",lv:"N5",tag:"kun"},
+{j:"お手洗い",r:"おてあらい",m:"화장실",lv:"N5",tag:"kun"},
+{j:"お父さん",r:"おとうさん",m:"아버지",lv:"N5",tag:"kun"},
+{j:"弟",r:"おとうと",m:"남동생",lv:"N5",tag:"kun"},
+{j:"男",r:"おとこ",m:"남자",lv:"N5",tag:"kun"},
+{j:"男の子",r:"おとこのこ",m:"남자아이",lv:"N5",tag:"kun"},
+{j:"一昨日",r:"おととい",m:"그저께",lv:"N5",tag:"kun"},
+{j:"おととし",r:"おととし",m:"재작년",lv:"N5",tag:"kun"},
+{j:"大人",r:"おとな",m:"어른",lv:"N5",tag:"kun"},
+{j:"お腹",r:"おなか",m:"배(복부)",lv:"N5",tag:"kun"},
+{j:"同じ",r:"おなじ",m:"같음·동일함",lv:"N5",tag:"kun"},
+{j:"お兄さん",r:"おにいさん",m:"형·오빠(남의)",lv:"N5",tag:"kun"},
+{j:"お姉さん",r:"おねえさん",m:"누나·언니(남의)",lv:"N5",tag:"kun"},
+{j:"伯母さん",r:"おばさん",m:"이모·고모·아주머니",lv:"N5",tag:"kun"},
+{j:"おばあさん",r:"おばあさん",m:"할머니",lv:"N5",tag:"kun"},
+{j:"お風呂",r:"おふろ",m:"목욕·욕조",lv:"N5",tag:"kun"},
+{j:"お弁当",r:"おべんとう",m:"도시락",lv:"N5",tag:"kun"},
+{j:"覚える",r:"おぼえる",m:"외우다·기억하다",lv:"N5",tag:"kun"},
+{j:"おまわりさん",r:"おまわりさん",m:"순경·경찰관",lv:"N5",tag:"kun"},
+{j:"重い",r:"おもい",m:"무겁다",lv:"N5",tag:"kun"},
+{j:"面白い",r:"おもしろい",m:"재미있다",lv:"N5",tag:"kun"},
+{j:"泳ぐ",r:"およぐ",m:"헤엄치다",lv:"N5",tag:"kun"},
+{j:"降りる",r:"おりる",m:"내리다",lv:"N5",tag:"kun"},
+{j:"終る",r:"おわる",m:"끝나다",lv:"N5",tag:"kun"},
+{j:"音楽",r:"おんがく",m:"음악",lv:"N5",k:"음악",tag:"han"},
+{j:"女",r:"おんな",m:"여자",lv:"N5",tag:"kun"},
+{j:"女の子",r:"おんなのこ",m:"여자아이",lv:"N5",tag:"kun"},
+{j:"～回",r:"～かい",m:"~회·~번(횟수)",lv:"N5",k:"회",tag:"han"},
+{j:"～階",r:"～かい",m:"~층",lv:"N5",k:"계",tag:"han"},
+{j:"外国",r:"がいこく",m:"외국",lv:"N5",k:"외국",tag:"han"},
+{j:"外国人",r:"がいこくじん",m:"외국인",lv:"N5",k:"외국인",tag:"han"},
+{j:"会社",r:"かいしゃ",m:"회사",lv:"N5",k:"회사",tag:"han"},
+{j:"階段",r:"かいだん",m:"계단",lv:"N5",k:"계단",tag:"han"},
+{j:"買い物",r:"かいもの",m:"쇼핑·장보기",lv:"N5",tag:"kun"},
+{j:"買う",r:"かう",m:"사다",lv:"N5",tag:"kun"},
+{j:"返す",r:"かえす",m:"돌려주다",lv:"N5",tag:"kun"},
+{j:"帰る",r:"かえる",m:"돌아가다·귀가하다",lv:"N5",tag:"kun"},
+{j:"顔",r:"かお",m:"얼굴",lv:"N5",tag:"kun"},
+{j:"かかる",r:"かかる",m:"(시간·돈이) 들다",lv:"N5",tag:"kun"},
+{j:"鍵",r:"かぎ",m:"열쇠·자물쇠",lv:"N5",tag:"kun"},
+{j:"書く",r:"かく",m:"쓰다",lv:"N5",tag:"kun"},
+{j:"学生",r:"がくせい",m:"학생",lv:"N5",k:"학생",tag:"han"},
+{j:"～か月",r:"～かげつ",m:"~개월",lv:"N5",k:"개월",tag:"han"},
+{j:"掛ける",r:"かける",m:"걸다·쓰다(안경)",lv:"N5",tag:"kun"},
+{j:"かける",r:"かける",m:"(전화를) 걸다·앉다",lv:"N5",tag:"kun"},
+{j:"傘",r:"かさ",m:"우산",lv:"N5",tag:"kun"},
+{j:"貸す",r:"かす",m:"빌려주다",lv:"N5",tag:"kun"},
+{j:"風",r:"かぜ",m:"바람",lv:"N5",tag:"kun"},
+{j:"風邪",r:"かぜ",m:"감기",lv:"N5",tag:"kun"},
+{j:"方",r:"かた",m:"분(사람 존칭)·방법",lv:"N5",tag:"kun"},
+{j:"家族",r:"かぞく",m:"가족",lv:"N5",k:"가족",tag:"han"},
+{j:"片仮名",r:"かたかな",m:"가타카나",lv:"N5",tag:"kun"},
+{j:"～月",r:"～がつ",m:"~월",lv:"N5",k:"월",tag:"han"},
+{j:"学校",r:"がっこう",m:"학교",lv:"N5",k:"학교",tag:"han"},
+{j:"カップ",r:"カップ",m:"컵",lv:"N5",tag:"kana"},
+{j:"家庭",r:"かてい",m:"가정·집안",lv:"N5",k:"가정",tag:"han"},
+{j:"角",r:"かど",m:"모퉁이·모서리",lv:"N5",tag:"kun"},
+{j:"かばん",r:"かばん",m:"가방",lv:"N5",tag:"kun"},
+{j:"花瓶",r:"かびん",m:"꽃병",lv:"N5",k:"화병",tag:"han"},
+{j:"かぶる",r:"かぶる",m:"(모자를) 쓰다",lv:"N5",tag:"kun"},
+{j:"紙",r:"かみ",m:"종이",lv:"N5",tag:"kun"},
+{j:"カメラ",r:"カメラ",m:"카메라",lv:"N5",tag:"kana"},
+{j:"火曜日",r:"かようび",m:"화요일",lv:"N5",k:"화요일",tag:"han"},
+{j:"辛い",r:"からい",m:"맵다·짜다",lv:"N5",tag:"kun"},
+{j:"体",r:"からだ",m:"몸·신체",lv:"N5",tag:"kun"},
+{j:"借りる",r:"かりる",m:"빌리다",lv:"N5",tag:"kun"},
+{j:"～がる",r:"～がる",m:"~해하다(느낌)",lv:"N5",tag:"kun"},
+{j:"軽い",r:"かるい",m:"가볍다",lv:"N5",tag:"kun"},
+{j:"カレー",r:"カレー",m:"카레",lv:"N5",tag:"kana"},
+{j:"カレンダー",r:"カレンダー",m:"달력·캘린더",lv:"N5",tag:"kana"},
+{j:"川",r:"かわ",m:"강·하천",lv:"N5",tag:"kun"},
+{j:"～側",r:"～がわ",m:"~쪽·~측",lv:"N5",k:"측",tag:"han"},
+{j:"可愛い",r:"かわいい",m:"귀엽다",lv:"N5",tag:"kun"},
+{j:"漢字",r:"かんじ",m:"한자",lv:"N5",k:"한자",tag:"han"},
+{j:"木",r:"き",m:"나무",lv:"N5",tag:"kun"},
+{j:"黄色",r:"きいろ",m:"노랑",lv:"N5",tag:"kun"},
+{j:"黄色い",r:"きいろい",m:"노랗다",lv:"N5",tag:"kun"},
+{j:"消える",r:"きえる",m:"사라지다·꺼지다",lv:"N5",tag:"kun"},
+{j:"聞く",r:"きく",m:"듣다·묻다",lv:"N5",tag:"kun"},
+{j:"北",r:"きた",m:"북쪽",lv:"N5",tag:"kun"},
+{j:"ギター",r:"ギター",m:"기타(악기)",lv:"N5",tag:"kana"},
+{j:"汚い",r:"きたない",m:"더럽다",lv:"N5",tag:"kun"},
+{j:"喫茶店",r:"きっさてん",m:"찻집·카페",lv:"N5",k:"끽다점",tag:"han"},
+{j:"切手",r:"きって",m:"우표",lv:"N5",tag:"kun"},
+{j:"切符",r:"きっぷ",m:"표·티켓",lv:"N5",tag:"kun"},
+{j:"昨日",r:"きのう",m:"어제",lv:"N5",tag:"kun"},
+{j:"九",r:"きゅう",m:"아홉·구",lv:"N5",k:"구",tag:"han"},
+{j:"牛肉",r:"ぎゅうにく",m:"소고기",lv:"N5",k:"우육",tag:"han"},
+{j:"牛乳",r:"ぎゅうにゅう",m:"우유",lv:"N5",k:"우유",tag:"han"},
+{j:"今日",r:"きょう",m:"오늘",lv:"N5",tag:"kun"},
+{j:"教室",r:"きょうしつ",m:"교실",lv:"N5",k:"교실",tag:"han"},
+{j:"兄弟",r:"きょうだい",m:"형제·남매",lv:"N5",k:"형제",tag:"han"},
+{j:"去年",r:"きょねん",m:"작년",lv:"N5",k:"거년",tag:"han"},
+{j:"嫌い",r:"きらい",m:"싫음·싫어함",lv:"N5",tag:"kun"},
+{j:"切る",r:"きる",m:"자르다·끊다",lv:"N5",tag:"kun"},
+{j:"着る",r:"きる",m:"입다",lv:"N5",tag:"kun"},
+{j:"綺麗",r:"きれい",m:"예쁨·깨끗함",lv:"N5",tag:"kun"},
+{j:"キロ",r:"キロ",m:"킬로(그램/미터)",lv:"N5",tag:"kana"},
+{j:"キロ",r:"キロ",m:"킬로(그램/미터)",lv:"N5",tag:"kana"},
+{j:"銀行",r:"ぎんこう",m:"은행",lv:"N5",k:"은행",tag:"han"},
+{j:"金曜日",r:"きんようび",m:"금요일",lv:"N5",k:"금요일",tag:"han"},
+{j:"薬",r:"くすり",m:"약",lv:"N5",tag:"kun"},
+{j:"下さい",r:"ください",m:"주세요·~해 주세요",lv:"N5",tag:"kun"},
+{j:"果物",r:"くだもの",m:"과일",lv:"N5",tag:"kun"},
+{j:"口",r:"くち",m:"입·(일)자리",lv:"N5",tag:"kun"},
+{j:"靴",r:"くつ",m:"신발·구두",lv:"N5",tag:"kun"},
+{j:"靴下",r:"くつした",m:"양말",lv:"N5",tag:"kun"},
+{j:"国",r:"くに",m:"나라·고향",lv:"N5",tag:"kun"},
+{j:"曇り",r:"くもり",m:"흐림",lv:"N5",tag:"kun"},
+{j:"曇る",r:"くもる",m:"흐려지다",lv:"N5",tag:"kun"},
+{j:"暗い",r:"くらい",m:"어둡다",lv:"N5",tag:"kun"},
+{j:"～くらい",r:"～くらい",m:"~정도·~쯤",lv:"N5",tag:"kun"},
+{j:"クラス",r:"クラス",m:"학급·클래스",lv:"N5",tag:"kana"},
+{j:"グラム",r:"グラム",m:"그램",lv:"N5",tag:"kana"},
+{j:"来る",r:"くる",m:"오다",lv:"N5",tag:"kun"},
+{j:"車",r:"くるま",m:"자동차·차",lv:"N5",tag:"kun"},
+{j:"黒",r:"くろ",m:"검정",lv:"N5",tag:"kun"},
+{j:"黒い",r:"くろい",m:"검다",lv:"N5",tag:"kun"},
+{j:"警官",r:"けいかん",m:"경관·경찰관",lv:"N5",k:"경관",tag:"han"},
+{j:"今朝",r:"けさ",m:"오늘 아침",lv:"N5",tag:"kun"},
+{j:"消す",r:"けす",m:"끄다·지우다",lv:"N5",tag:"kun"},
+{j:"結構",r:"けっこう",m:"훌륭함·충분함·괜찮음",lv:"N5",k:"결구",tag:"han"},
+{j:"結婚",r:"けっこん",m:"결혼",lv:"N5",k:"결혼",tag:"han"},
+{j:"月曜日",r:"げつようび",m:"월요일",lv:"N5",k:"월요일",tag:"han"},
+{j:"玄関",r:"げんかん",m:"현관",lv:"N5",k:"현관",tag:"han"},
+{j:"元気",r:"げんき",m:"건강함·기운참",lv:"N5",k:"원기",tag:"han"},
+{j:"～個",r:"～こ",m:"~개(작은 것)",lv:"N5",k:"개",tag:"han"},
+{j:"五",r:"ご",m:"다섯·오",lv:"N5",k:"오",tag:"han"},
+{j:"～語",r:"～ご",m:"~어(언어)·말",lv:"N5",k:"어",tag:"han"},
+{j:"公園",r:"こうえん",m:"공원",lv:"N5",k:"공원",tag:"han"},
+{j:"交差点",r:"こうさてん",m:"교차로",lv:"N5",k:"교차점",tag:"han"},
+{j:"紅茶",r:"こうちゃ",m:"홍차",lv:"N5",k:"홍차",tag:"han"},
+{j:"交番",r:"こうばん",m:"파출소",lv:"N5",k:"교번",tag:"han"},
+{j:"声",r:"こえ",m:"목소리",lv:"N5",tag:"kun"},
+{j:"コート",r:"コート",m:"코트·외투",lv:"N5",tag:"kana"},
+{j:"コーヒー",r:"コーヒー",m:"커피",lv:"N5",tag:"kana"},
+{j:"ここ",r:"ここ",m:"여기",lv:"N5",tag:"kun"},
+{j:"午後",r:"ごご",m:"오후",lv:"N5",k:"오후",tag:"han"},
+{j:"九日",r:"ここのか",m:"아흐레·9일",lv:"N5",tag:"kun"},
+{j:"九つ",r:"ここのつ",m:"아홉(개)",lv:"N5",tag:"kun"},
+{j:"午前",r:"ごぜん",m:"오전",lv:"N5",k:"오전",tag:"han"},
+{j:"答える",r:"こたえる",m:"대답하다",lv:"N5",tag:"kun"},
+{j:"こちら",r:"こちら",m:"이쪽(공손)",lv:"N5",tag:"kun"},
+{j:"こっち",r:"こっち",m:"이쪽",lv:"N5",tag:"kun"},
+{j:"コップ",r:"コップ",m:"컵·유리잔",lv:"N5",tag:"kana"},
+{j:"今年",r:"ことし",m:"올해",lv:"N5",tag:"kun"},
+{j:"言葉",r:"ことば",m:"말·언어·단어",lv:"N5",tag:"kun"},
+{j:"子供",r:"こども",m:"아이·어린이",lv:"N5",tag:"kun"},
+{j:"この",r:"この",m:"이(이~)",lv:"N5",tag:"kun"},
+{j:"御飯",r:"ごはん",m:"밥·식사",lv:"N5",tag:"kun"},
+{j:"コピー",r:"コピー",m:"복사하다",lv:"N5",tag:"kana"},
+{j:"困る",r:"こまる",m:"곤란하다·난처하다",lv:"N5",tag:"kun"},
+{j:"これ",r:"これ",m:"이것",lv:"N5",tag:"kun"},
+{j:"～ころ",r:"～ころ",m:"~무렵·~쯤",lv:"N5",tag:"kun"},
+{j:"今月",r:"こんげつ",m:"이번 달",lv:"N5",k:"금월",tag:"han"},
+{j:"今週",r:"こんしゅう",m:"이번 주",lv:"N5",k:"금주",tag:"han"},
+{j:"こんな",r:"こんな",m:"이런",lv:"N5",tag:"kun"},
+{j:"今晩",r:"こんばん",m:"오늘 밤",lv:"N5",k:"금만",tag:"han"},
+{j:"さあ",r:"さあ",m:"자!·글쎄",lv:"N5",tag:"kun"},
+{j:"～歳",r:"～さい",m:"~살·~세",lv:"N5",k:"세",tag:"han"},
+{j:"財布",r:"さいふ",m:"지갑",lv:"N5",k:"재포",tag:"han"},
+{j:"魚",r:"さかな",m:"물고기·생선",lv:"N5",tag:"kun"},
+{j:"先",r:"さき",m:"앞·먼저·이전",lv:"N5",tag:"kun"},
+{j:"咲く",r:"さく",m:"(꽃이) 피다",lv:"N5",tag:"kun"},
+{j:"作文",r:"さくぶん",m:"작문",lv:"N5",k:"작문",tag:"han"},
+{j:"差す",r:"さす",m:"(우산을) 쓰다·내밀다",lv:"N5",tag:"kun"},
+{j:"～冊",r:"～さつ",m:"~권(책)",lv:"N5",k:"책",tag:"han"},
+{j:"雑誌",r:"ざっし",m:"잡지",lv:"N5",k:"잡지",tag:"han"},
+{j:"砂糖",r:"さとう",m:"설탕",lv:"N5",k:"사탕",tag:"han"},
+{j:"寒い",r:"さむい",m:"춥다",lv:"N5",tag:"kun"},
+{j:"さ来年",r:"さらいねん",m:"내후년",lv:"N5",tag:"kun"},
+{j:"～さん",r:"～さん",m:"~씨·~님",lv:"N5",tag:"kun"},
+{j:"三",r:"さん",m:"셋·삼",lv:"N5",k:"삼",tag:"han"},
+{j:"散歩",r:"さんぽ",m:"산책",lv:"N5",k:"산보",tag:"han"},
+{j:"四",r:"し",m:"넷·사",lv:"N5",k:"사",tag:"han"},
+{j:"～時",r:"～じ",m:"~시(시각)",lv:"N5",k:"시",tag:"han"},
+{j:"塩",r:"しお",m:"소금",lv:"N5",tag:"kun"},
+{j:"しかし",r:"しかし",m:"그러나·하지만",lv:"N5",tag:"kun"},
+{j:"時間",r:"じかん",m:"시간",lv:"N5",k:"시간",tag:"han"},
+{j:"～時間",r:"～じかん",m:"시간",lv:"N5",k:"시간",tag:"han"},
+{j:"仕事",r:"しごと",m:"일·직업",lv:"N5",tag:"kun"},
+{j:"辞書",r:"じしょ",m:"사전",lv:"N5",k:"사서",tag:"han"},
+{j:"静か",r:"しずか",m:"조용함·고요함",lv:"N5",tag:"kun"},
+{j:"下",r:"した",m:"아래·밑",lv:"N5",tag:"kun"},
+{j:"七",r:"しち",m:"일곱·칠",lv:"N5",k:"칠",tag:"han"},
+{j:"質問",r:"しつもん",m:"질문",lv:"N5",k:"질문",tag:"han"},
+{j:"自転車",r:"じてんしゃ",m:"자전거",lv:"N5",k:"자전거",tag:"han"},
+{j:"自動車",r:"じどうしゃ",m:"자동차",lv:"N5",k:"자동차",tag:"han"},
+{j:"死ぬ",r:"しぬ",m:"죽다",lv:"N5",tag:"kun"},
+{j:"字引",r:"じびき",m:"자전·사전",lv:"N5",tag:"kun"},
+{j:"自分",r:"じぶん",m:"자기·자신",lv:"N5",k:"자분",tag:"han"},
+{j:"閉まる",r:"しまる",m:"닫히다",lv:"N5",tag:"kun"},
+{j:"閉める",r:"しめる",m:"닫다",lv:"N5",tag:"kun"},
+{j:"締める",r:"しめる",m:"매다·조이다",lv:"N5",tag:"kun"},
+{j:"じゃ",r:"じゃ",m:"그럼·그러면",lv:"N5",tag:"kun"},
+{j:"写真",r:"しゃしん",m:"사진",lv:"N5",k:"사진",tag:"han"},
+{j:"シャツ",r:"シャツ",m:"셔츠",lv:"N5",tag:"kana"},
+{j:"シャワー",r:"シャワー",m:"샤워",lv:"N5",tag:"kana"},
+{j:"十",r:"じゅう",m:"열·십",lv:"N5",k:"십",tag:"han"},
+{j:"～中",r:"～じゅう",m:"안·속·가운데",lv:"N5",tag:"kun"},
+{j:"～週間",r:"～しゅうかん",m:"~주간·~주",lv:"N5",k:"주간",tag:"han"},
+{j:"授業",r:"じゅぎょう",m:"수업",lv:"N5",k:"수업",tag:"han"},
+{j:"宿題",r:"しゅくだい",m:"숙제",lv:"N5",k:"숙제",tag:"han"},
+{j:"上手",r:"じょうず",m:"능숙함·잘함",lv:"N5",k:"상수",tag:"han"},
+{j:"丈夫",r:"じょうぶ",m:"튼튼함·견고함",lv:"N5",k:"장부",tag:"han"},
+{j:"醤油",r:"しょうゆ",m:"간장",lv:"N5",k:"장유",tag:"han"},
+{j:"食堂",r:"しょくどう",m:"식당",lv:"N5",k:"식당",tag:"han"},
+{j:"知る",r:"しる",m:"알다",lv:"N5",tag:"kun"},
+{j:"白",r:"しろ",m:"흰색·하양",lv:"N5",tag:"kun"},
+{j:"白い",r:"しろい",m:"희다·하얗다",lv:"N5",tag:"kun"},
+{j:"～人",r:"～じん",m:"사람",lv:"N5",tag:"kun"},
+{j:"新聞",r:"しんぶん",m:"신문",lv:"N5",k:"신문",tag:"han"},
+{j:"水曜日",r:"すいようび",m:"수요일",lv:"N5",k:"수요일",tag:"han"},
+{j:"吸う",r:"すう",m:"(숨을) 들이쉬다·빨다",lv:"N5",tag:"kun"},
+{j:"スカート",r:"スカート",m:"치마·스커트",lv:"N5",tag:"kana"},
+{j:"好き",r:"すき",m:"좋아함",lv:"N5",tag:"kun"},
+{j:"～すぎ",r:"～すぎ",m:"~지남·지나치게 ~",lv:"N5",tag:"kun"},
+{j:"少ない",r:"すくない",m:"적다",lv:"N5",tag:"kun"},
+{j:"すぐに",r:"すぐに",m:"곧·바로",lv:"N5",tag:"kun"},
+{j:"少し",r:"すこし",m:"조금",lv:"N5",tag:"kun"},
+{j:"涼しい",r:"すずしい",m:"시원하다",lv:"N5",tag:"kun"},
+{j:"～ずつ",r:"～ずつ",m:"~씩",lv:"N5",tag:"kun"},
+{j:"ストーブ",r:"ストーブ",m:"난로·히터",lv:"N5",tag:"kana"},
+{j:"スプーン",r:"スプーン",m:"숟가락·스푼",lv:"N5",tag:"kana"},
+{j:"スポーツ",r:"スポーツ",m:"스포츠·운동",lv:"N5",tag:"kana"},
+{j:"ズボン",r:"ズボン",m:"바지",lv:"N5",tag:"kana"},
+{j:"住む",r:"すむ",m:"살다·거주하다",lv:"N5",tag:"kun"},
+{j:"",r:"",m:"하다",lv:"N5",tag:"kun"},
+{j:"座る",r:"すわる",m:"앉다",lv:"N5",tag:"kun"},
+{j:"背",r:"せい",m:"키·등",lv:"N5",tag:"kun"},
+{j:"生徒",r:"せいと",m:"학생·생도",lv:"N5",k:"생도",tag:"han"},
+{j:"セーター",r:"セーター",m:"스웨터",lv:"N5",tag:"kana"},
+{j:"石鹸",r:"せっけん",m:"비누",lv:"N5",k:"석감",tag:"han"},
+{j:"背広",r:"せびろ",m:"(남성) 정장",lv:"N5",tag:"kun"},
+{j:"狭い",r:"せまい",m:"좁다",lv:"N5",tag:"kun"},
+{j:"ゼロ",r:"ゼロ",m:"제로·영",lv:"N5",tag:"kana"},
+{j:"千",r:"せん",m:"천",lv:"N5",k:"천",tag:"han"},
+{j:"先月",r:"せんげつ",m:"지난달",lv:"N5",k:"선월",tag:"han"},
+{j:"先週",r:"せんしゅう",m:"지난주",lv:"N5",k:"선주",tag:"han"},
+{j:"先生",r:"せんせい",m:"선생님",lv:"N5",k:"선생",tag:"han"},
+{j:"洗濯",r:"せんたく",m:"세탁·빨래",lv:"N5",k:"세탁",tag:"han"},
+{j:"全部",r:"ぜんぶ",m:"전부·모두",lv:"N5",k:"전부",tag:"han"},
+{j:"そう",r:"そう",m:"그래·그렇다",lv:"N5",tag:"kun"},
+{j:"掃除",r:"そうじ",m:"청소",lv:"N5",k:"소제",tag:"han"},
+{j:"そうして",r:"そうして",m:"그리고·그렇게",lv:"N5",tag:"kun"},
+{j:"そこ",r:"そこ",m:"거기",lv:"N5",tag:"kun"},
+{j:"そちら",r:"そちら",m:"그쪽",lv:"N5",tag:"kun"},
+{j:"そっち",r:"そっち",m:"그쪽",lv:"N5",tag:"kun"},
+{j:"外",r:"そと",m:"밖·바깥",lv:"N5",tag:"kun"},
+{j:"その",r:"その",m:"그(그~)",lv:"N5",tag:"kun"},
+{j:"そば",r:"そば",m:"곁·옆·메밀국수",lv:"N5",tag:"kun"},
+{j:"空",r:"そら",m:"하늘",lv:"N5",tag:"kun"},
+{j:"それ",r:"それ",m:"그것",lv:"N5",tag:"kun"},
+{j:"それから",r:"それから",m:"그리고·그다음에",lv:"N5",tag:"kun"},
+{j:"それでは",r:"それでは",m:"그러면·그럼",lv:"N5",tag:"kun"},
+{j:"～台",r:"～だい",m:"~대(차·기계)",lv:"N5",k:"대",tag:"han"},
+{j:"大学",r:"だいがく",m:"대학",lv:"N5",k:"대학",tag:"han"},
+{j:"大使館",r:"たいしかん",m:"대사관",lv:"N5",k:"대사관",tag:"han"},
+{j:"大丈夫",r:"だいじょうぶ",m:"괜찮음·문제없음",lv:"N5",k:"대장부",tag:"han"},
+{j:"大好き",r:"だいすき",m:"아주 좋아함",lv:"N5",k:"대호",tag:"han"},
+{j:"大切",r:"たいせつ",m:"소중함·중요함",lv:"N5",k:"대절",tag:"han"},
+{j:"台所",r:"だいどころ",m:"부엌",lv:"N5",tag:"kun"},
+{j:"大変",r:"たいへん",m:"매우·큰일·힘듦",lv:"N5",k:"대변",tag:"han"},
+{j:"高い",r:"たかい",m:"높다·비싸다",lv:"N5",tag:"kun"},
+{j:"～だけ",r:"～だけ",m:"~만·~뿐",lv:"N5",tag:"kun"},
+{j:"沢山",r:"たくさん",m:"많이·많음",lv:"N5",tag:"kun"},
+{j:"タクシー",r:"タクシー",m:"택시",lv:"N5",tag:"kana"},
+{j:"出す",r:"だす",m:"내다·꺼내다·제출하다",lv:"N5",tag:"kun"},
+{j:"～たち",r:"～たち",m:"~들(복수)",lv:"N5",tag:"kun"},
+{j:"立つ",r:"たつ",m:"서다·일어서다",lv:"N5",tag:"kun"},
+{j:"たて",r:"たて",m:"세로·높이",lv:"N5",tag:"kun"},
+{j:"建物",r:"たてもの",m:"건물",lv:"N5",tag:"kun"},
+{j:"楽しい",r:"たのしい",m:"즐겁다",lv:"N5",tag:"kun"},
+{j:"頼む",r:"たのむ",m:"부탁하다",lv:"N5",tag:"kun"},
+{j:"たばこ",r:"たばこ",m:"담배",lv:"N5",tag:"kun"},
+{j:"多分",r:"たぶん",m:"아마·대개",lv:"N5",k:"다분",tag:"han"},
+{j:"食べ物",r:"たべもの",m:"음식·먹을 것",lv:"N5",tag:"kun"},
+{j:"食べる",r:"たべる",m:"먹다",lv:"N5",tag:"kun"},
+{j:"卵",r:"たまご",m:"알·계란",lv:"N5",tag:"kun"},
+{j:"誰",r:"だれ",m:"누구",lv:"N5",tag:"kun"},
+{j:"誰か",r:"だれか",m:"누군가",lv:"N5",tag:"kun"},
+{j:"誕生日",r:"たんじょうび",m:"생일",lv:"N5",k:"탄생일",tag:"han"},
+{j:"段々",r:"だんだん",m:"점점·차츰",lv:"N5",k:"단단",tag:"han"},
+{j:"小さい",r:"ちいさい",m:"작다",lv:"N5",tag:"kun"},
+{j:"小さな",r:"ちいさな",m:"작은",lv:"N5",tag:"kun"},
+{j:"近い",r:"ちかい",m:"가깝다",lv:"N5",tag:"kun"},
+{j:"違う",r:"ちがう",m:"다르다·틀리다",lv:"N5",tag:"kun"},
+{j:"近く",r:"ちかく",m:"근처·가까이",lv:"N5",tag:"kun"},
+{j:"地下鉄",r:"ちかてつ",m:"지하철",lv:"N5",k:"지하철",tag:"han"},
+{j:"地図",r:"ちず",m:"지도",lv:"N5",k:"지도",tag:"han"},
+{j:"父",r:"ちち",m:"아버지",lv:"N5",tag:"kun"},
+{j:"茶色",r:"ちゃいろ",m:"갈색",lv:"N5",tag:"kun"},
+{j:"茶碗",r:"ちゃわん",m:"밥공기·찻잔",lv:"N5",k:"다완",tag:"han"},
+{j:"丁度",r:"ちょうど",m:"딱·마침·정확히",lv:"N5",k:"정도",tag:"han"},
+{j:"ちょっと",r:"ちょっと",m:"조금·잠깐",lv:"N5",tag:"kun"},
+{j:"使う",r:"つかう",m:"쓰다·사용하다",lv:"N5",tag:"kun"},
+{j:"疲れる",r:"つかれる",m:"지치다·피곤하다",lv:"N5",tag:"kun"},
+{j:"次",r:"つぎ",m:"다음",lv:"N5",tag:"kun"},
+{j:"着く",r:"つく",m:"도착하다",lv:"N5",tag:"kun"},
+{j:"机",r:"つくえ",m:"책상",lv:"N5",tag:"kun"},
+{j:"作る",r:"つくる",m:"만들다",lv:"N5",tag:"kun"},
+{j:"つける",r:"つける",m:"켜다·붙이다",lv:"N5",tag:"kun"},
+{j:"勤める",r:"つとめる",m:"근무하다",lv:"N5",tag:"kun"},
+{j:"つまらない",r:"つまらない",m:"재미없다·하찮다",lv:"N5",tag:"kun"},
+{j:"冷たい",r:"つめたい",m:"차갑다",lv:"N5",tag:"kun"},
+{j:"強い",r:"つよい",m:"강하다·세다",lv:"N5",tag:"kun"},
+{j:"手",r:"て",m:"손",lv:"N5",tag:"kun"},
+{j:"テープ",r:"テープ",m:"테이프",lv:"N5",tag:"kana"},
+{j:"テープレコーダー",r:"テープレコーダー",m:"테이프 레코더",lv:"N5",tag:"kana"},
+{j:"テーブル",r:"テーブル",m:"테이블·탁자",lv:"N5",tag:"kana"},
+{j:"出かける",r:"でかける",m:"외출하다·나가다",lv:"N5",tag:"kun"},
+{j:"手紙",r:"てがみ",m:"편지",lv:"N5",tag:"kun"},
+{j:"できる",r:"できる",m:"할 수 있다·생기다",lv:"N5",tag:"kun"},
+{j:"出口",r:"でぐち",m:"출구",lv:"N5",tag:"kun"},
+{j:"テスト",r:"テスト",m:"테스트·시험",lv:"N5",tag:"kana"},
+{j:"では",r:"では",m:"그럼·그러면",lv:"N5",tag:"kun"},
+{j:"デパート",r:"デパート",m:"백화점",lv:"N5",tag:"kana"},
+{j:"でも",r:"でも",m:"그래도·하지만",lv:"N5",tag:"kun"},
+{j:"出る",r:"でる",m:"나가다·나오다",lv:"N5",tag:"kun"},
+{j:"テレビ",r:"テレビ",m:"텔레비전·TV",lv:"N5",tag:"kana"},
+{j:"天気",r:"てんき",m:"날씨",lv:"N5",k:"천기",tag:"han"},
+{j:"電気",r:"でんき",m:"전기·전등",lv:"N5",k:"전기",tag:"han"},
+{j:"電車",r:"でんしゃ",m:"전철·전차",lv:"N5",k:"전차",tag:"han"},
+{j:"電話",r:"でんわ",m:"전화",lv:"N5",k:"전화",tag:"han"},
+{j:"戸",r:"と",m:"문(미닫이문)",lv:"N5",tag:"kun"},
+{j:"～度",r:"～ど",m:"~도·~번(횟수)",lv:"N5",k:"도",tag:"han"},
+{j:"ドア",r:"ドア",m:"문(서양식)·도어",lv:"N5",tag:"kana"},
+{j:"トイレ",r:"トイレ",m:"화장실·변기",lv:"N5",tag:"kana"},
+{j:"どう",r:"どう",m:"어떻게",lv:"N5",tag:"kun"},
+{j:"どうして",r:"どうして",m:"왜·어째서",lv:"N5",tag:"kun"},
+{j:"どうぞ",r:"どうぞ",m:"부디·아무쪼록",lv:"N5",tag:"kun"},
+{j:"動物",r:"どうぶつ",m:"동물",lv:"N5",k:"동물",tag:"han"},
+{j:"どうも",r:"どうも",m:"정말·아무래도",lv:"N5",tag:"kun"},
+{j:"遠い",r:"とおい",m:"멀다",lv:"N5",tag:"kun"},
+{j:"十日",r:"とおか",m:"열흘·10일",lv:"N5",tag:"kun"},
+{j:"時々",r:"ときどき",m:"때때로·가끔",lv:"N5",k:"시시",tag:"han"},
+{j:"時計",r:"とけい",m:"시계",lv:"N5",tag:"kun"},
+{j:"どこ",r:"どこ",m:"어디",lv:"N5",tag:"kun"},
+{j:"所",r:"ところ",m:"곳·장소",lv:"N5",tag:"kun"},
+{j:"年",r:"とし",m:"~년",lv:"N5",k:"년",tag:"han"},
+{j:"図書館",r:"としょかん",m:"도서관",lv:"N5",k:"도서관",tag:"han"},
+{j:"どちら",r:"どちら",m:"어느 쪽(공손)",lv:"N5",tag:"kun"},
+{j:"どっち",r:"どっち",m:"어느 쪽",lv:"N5",tag:"kun"},
+{j:"とても",r:"とても",m:"매우·아주",lv:"N5",tag:"kun"},
+{j:"どなた",r:"どなた",m:"어느 분(누구)",lv:"N5",tag:"kun"},
+{j:"隣",r:"となり",m:"옆·이웃",lv:"N5",tag:"kun"},
+{j:"どの",r:"どの",m:"어느",lv:"N5",tag:"kun"},
+{j:"飛ぶ",r:"とぶ",m:"날다",lv:"N5",tag:"kun"},
+{j:"止まる",r:"とまる",m:"멈추다·서다",lv:"N5",tag:"kun"},
+{j:"友達",r:"ともだち",m:"친구",lv:"N5",tag:"kun"},
+{j:"土曜日",r:"どようび",m:"토요일",lv:"N5",k:"토요일",tag:"han"},
+{j:"鳥",r:"とり",m:"새",lv:"N5",tag:"kun"},
+{j:"鶏肉",r:"とりにく",m:"닭고기",lv:"N5",k:"계육",tag:"han"},
+{j:"取る",r:"とる",m:"잡다·들다·따다",lv:"N5",tag:"kun"},
+{j:"撮る",r:"とる",m:"(사진을) 찍다",lv:"N5",tag:"kun"},
+{j:"どれ",r:"どれ",m:"어느 것",lv:"N5",tag:"kun"},
+{j:"どんな",r:"どんな",m:"어떤",lv:"N5",tag:"kun"},
+{j:"ない",r:"ない",m:"없다",lv:"N5",tag:"kun"},
+{j:"ナイフ",r:"ナイフ",m:"나이프·칼",lv:"N5",tag:"kana"},
+{j:"中",r:"なか",m:"안·속·가운데",lv:"N5",tag:"kun"},
+{j:"長い",r:"ながい",m:"길다",lv:"N5",tag:"kun"},
+{j:"鳴く",r:"なく",m:"(동물이) 울다",lv:"N5",tag:"kun"},
+{j:"無くす",r:"なくす",m:"잃어버리다·없애다",lv:"N5",tag:"kun"},
+{j:"なぜ",r:"なぜ",m:"왜",lv:"N5",tag:"kun"},
+{j:"夏",r:"なつ",m:"여름",lv:"N5",tag:"kun"},
+{j:"夏休み",r:"なつやすみ",m:"여름방학·여름휴가",lv:"N5",tag:"kun"},
+{j:"～など",r:"～など",m:"~등·~따위",lv:"N5",tag:"kun"},
+{j:"七つ",r:"ななつ",m:"일곱(개)",lv:"N5",tag:"kun"},
+{j:"何",r:"なん",m:"무슨·어떤",lv:"N5",tag:"kun"},
+{j:"七日",r:"なのか",m:"이레·7일",lv:"N5",tag:"kun"},
+{j:"名前",r:"なまえ",m:"이름",lv:"N5",tag:"kun"},
+{j:"習う",r:"ならう",m:"배우다",lv:"N5",tag:"kun"},
+{j:"並ぶ",r:"ならぶ",m:"줄 서다·늘어서다",lv:"N5",tag:"kun"},
+{j:"並べる",r:"ならべる",m:"나란히 놓다·늘어놓다",lv:"N5",tag:"kun"},
+{j:"なる",r:"なる",m:"되다",lv:"N5",tag:"kun"},
+{j:"何～",r:"なん～",m:"무슨 ~·어떤 ~",lv:"N5",tag:"kun"},
+{j:"二",r:"に",m:"둘·이",lv:"N5",k:"이",tag:"han"},
+{j:"にぎやか",r:"にぎやか",m:"번화함·북적임",lv:"N5",tag:"kun"},
+{j:"肉",r:"にく",m:"고기",lv:"N5",k:"육",tag:"han"},
+{j:"西",r:"にし",m:"서쪽",lv:"N5",tag:"kun"},
+{j:"～日",r:"～にち",m:"~일(날짜)",lv:"N5",k:"일",tag:"han"},
+{j:"日曜日",r:"にちようび",m:"일요일",lv:"N5",k:"일요일",tag:"han"},
+{j:"荷物",r:"にもつ",m:"짐·화물",lv:"N5",k:"하물",tag:"han"},
+{j:"ニュース",r:"ニュース",m:"뉴스",lv:"N5",tag:"kana"},
+{j:"庭",r:"にわ",m:"정원·마당",lv:"N5",tag:"kun"},
+{j:"脱ぐ",r:"ぬぐ",m:"(옷을) 벗다",lv:"N5",tag:"kun"},
+{j:"温い",r:"ぬるい",m:"미지근하다",lv:"N5",tag:"kun"},
+{j:"ネクタイ",r:"ネクタイ",m:"넥타이",lv:"N5",tag:"kana"},
+{j:"猫",r:"ねこ",m:"고양이",lv:"N5",tag:"kun"},
+{j:"寝る",r:"ねる",m:"자다·눕다",lv:"N5",tag:"kun"},
+{j:"～年",r:"～ねん",m:"~년",lv:"N5",k:"년",tag:"han"},
+{j:"ノート",r:"ノート",m:"공책·노트",lv:"N5",tag:"kana"},
+{j:"登る",r:"のぼる",m:"오르다·올라가다",lv:"N5",tag:"kun"},
+{j:"飲み物",r:"のみもの",m:"음료·마실 것",lv:"N5",tag:"kun"},
+{j:"飲む",r:"のむ",m:"마시다",lv:"N5",tag:"kun"},
+{j:"乗る",r:"のる",m:"타다",lv:"N5",tag:"kun"},
+{j:"歯",r:"は",m:"이·치아",lv:"N5",tag:"kun"},
+{j:"パーティー",r:"パーティー",m:"파티",lv:"N5",tag:"kana"},
+{j:"はい",r:"はい",m:"네·예",lv:"N5",tag:"kun"},
+{j:"～杯",r:"～はい",m:"~잔(잔 수)",lv:"N5",k:"배",tag:"han"},
+{j:"灰皿",r:"はいざら",m:"재떨이",lv:"N5",tag:"kun"},
+{j:"入る",r:"はいる",m:"들어가다·들어오다",lv:"N5",tag:"kun"},
+{j:"葉書",r:"はがき",m:"엽서",lv:"N5",tag:"kun"},
+{j:"はく",r:"はく",m:"(하의·신발을) 신다·입다",lv:"N5",tag:"kun"},
+{j:"箱",r:"はこ",m:"상자·박스",lv:"N5",tag:"kun"},
+{j:"橋",r:"はし",m:"다리(교량)",lv:"N5",tag:"kun"},
+{j:"箸",r:"はし",m:"젓가락",lv:"N5",tag:"kun"},
+{j:"始まる",r:"はじまる",m:"시작되다",lv:"N5",tag:"kun"},
+{j:"初め",r:"はじめ",m:"처음·시작",lv:"N5",tag:"kun"},
+{j:"初めて",r:"はじめて",m:"처음으로",lv:"N5",tag:"kun"},
+{j:"走る",r:"はしる",m:"달리다",lv:"N5",tag:"kun"},
+{j:"バス",r:"バス",m:"버스",lv:"N5",tag:"kana"},
+{j:"バター",r:"バター",m:"버터",lv:"N5",tag:"kana"},
+{j:"二十歳",r:"はたち",m:"스무 살",lv:"N5",tag:"kun"},
+{j:"働く",r:"はたらく",m:"일하다",lv:"N5",tag:"kun"},
+{j:"八",r:"はち",m:"여덟·팔",lv:"N5",k:"팔",tag:"han"},
+{j:"二十日",r:"はつか",m:"스무날·20일",lv:"N5",tag:"kun"},
+{j:"花",r:"はな",m:"꽃",lv:"N5",tag:"kun"},
+{j:"鼻",r:"はな",m:"코",lv:"N5",tag:"kun"},
+{j:"話",r:"はなし",m:"이야기·말",lv:"N5",tag:"kun"},
+{j:"話す",r:"はなす",m:"말하다·이야기하다",lv:"N5",tag:"kun"},
+{j:"母",r:"はは",m:"어머니",lv:"N5",tag:"kun"},
+{j:"早い",r:"はやい",m:"이르다·빠르다(시간)",lv:"N5",tag:"kun"},
+{j:"速い",r:"はやい",m:"빠르다(속도)",lv:"N5",tag:"kun"},
+{j:"春",r:"はる",m:"봄",lv:"N5",tag:"kun"},
+{j:"貼る",r:"はる",m:"붙이다",lv:"N5",tag:"kun"},
+{j:"晴れ",r:"はれ",m:"맑음",lv:"N5",tag:"kun"},
+{j:"晴れる",r:"はれる",m:"(날이) 개다·맑다",lv:"N5",tag:"kun"},
+{j:"半",r:"はん",m:"반·~시 반",lv:"N5",k:"반",tag:"han"},
+{j:"晩",r:"ばん",m:"저녁·밤",lv:"N5",k:"만",tag:"han"},
+{j:"～番",r:"～ばん",m:"~번·~째",lv:"N5",k:"번",tag:"han"},
+{j:"パン",r:"パン",m:"빵",lv:"N5",tag:"kana"},
+{j:"ハンカチ",r:"ハンカチ",m:"손수건",lv:"N5",tag:"kana"},
+{j:"番号",r:"ばんごう",m:"번호",lv:"N5",k:"번호",tag:"han"},
+{j:"晩御飯",r:"ばんごはん",m:"저녁밥",lv:"N5",tag:"kun"},
+{j:"半分",r:"はんぶん",m:"절반·반",lv:"N5",k:"반분",tag:"han"},
+{j:"東",r:"ひがし",m:"동쪽",lv:"N5",tag:"kun"},
+{j:"～匹",r:"～ひき",m:"~마리(작은 동물)",lv:"N5",k:"필",tag:"han"},
+{j:"引く",r:"ひく",m:"당기다·빼다",lv:"N5",tag:"kun"},
+{j:"弾く",r:"ひく",m:"(악기를) 치다·연주하다",lv:"N5",tag:"kun"},
+{j:"低い",r:"ひくい",m:"낮다·(키가) 작다",lv:"N5",tag:"kun"},
+{j:"飛行機",r:"ひこうき",m:"비행기",lv:"N5",k:"비행기",tag:"han"},
+{j:"左",r:"ひだり",m:"왼쪽",lv:"N5",tag:"kun"},
+{j:"人",r:"ひと",m:"사람",lv:"N5",tag:"kun"},
+{j:"一つ",r:"ひとつ",m:"하나·한 개",lv:"N5",tag:"kun"},
+{j:"一月",r:"ひとつき",m:"한 달",lv:"N5",tag:"kun"},
+{j:"一人",r:"ひとり",m:"한 사람·혼자",lv:"N5",tag:"kun"},
+{j:"暇",r:"ひま",m:"틈·여가",lv:"N5",tag:"kun"},
+{j:"百",r:"ひゃく",m:"백",lv:"N5",k:"백",tag:"han"},
+{j:"病院",r:"びょういん",m:"병원",lv:"N5",k:"병원",tag:"han"},
+{j:"病気",r:"びょうき",m:"병·질병",lv:"N5",k:"병기",tag:"han"},
+{j:"平仮名",r:"ひらがな",m:"히라가나",lv:"N5",tag:"kun"},
+{j:"昼",r:"ひる",m:"낮·점심때",lv:"N5",tag:"kun"},
+{j:"昼御飯",r:"ひるごはん",m:"점심밥",lv:"N5",tag:"kun"},
+{j:"広い",r:"ひろい",m:"넓다",lv:"N5",tag:"kun"},
+{j:"フィルム",r:"フィルム",m:"필름",lv:"N5",tag:"kana"},
+{j:"封筒",r:"ふうとう",m:"봉투",lv:"N5",k:"봉통",tag:"han"},
+{j:"プール",r:"プール",m:"수영장·풀",lv:"N5",tag:"kana"},
+{j:"フォーク",r:"フォーク",m:"포크",lv:"N5",tag:"kana"},
+{j:"吹く",r:"ふく",m:"(바람이) 불다",lv:"N5",tag:"kun"},
+{j:"服",r:"ふく",m:"옷",lv:"N5",k:"복",tag:"han"},
+{j:"二つ",r:"ふたつ",m:"둘·두 개",lv:"N5",tag:"kun"},
+{j:"豚肉",r:"ぶたにく",m:"돼지고기",lv:"N5",k:"돈육",tag:"han"},
+{j:"二人",r:"ふたり",m:"두 사람",lv:"N5",tag:"kun"},
+{j:"二日",r:"ふつか",m:"이틀·2일",lv:"N5",tag:"kun"},
+{j:"太い",r:"ふとい",m:"굵다·두껍다",lv:"N5",tag:"kun"},
+{j:"冬",r:"ふゆ",m:"겨울",lv:"N5",tag:"kun"},
+{j:"降る",r:"ふる",m:"(비·눈이) 내리다",lv:"N5",tag:"kun"},
+{j:"古い",r:"ふるい",m:"낡다·오래되다",lv:"N5",tag:"kun"},
+{j:"～分",r:"～ふん",m:"~분(시간)",lv:"N5",k:"분",tag:"han"},
+{j:"文章",r:"ぶんしょう",m:"문장·글",lv:"N5",k:"문장",tag:"han"},
+{j:"ページ",r:"ページ",m:"페이지·쪽",lv:"N5",tag:"kana"},
+{j:"下手",r:"へた",m:"서투름·못함",lv:"N5",k:"하수",tag:"han"},
+{j:"ベッド",r:"ベッド",m:"침대",lv:"N5",tag:"kana"},
+{j:"ペット",r:"ペット",m:"반려동물·펫",lv:"N5",tag:"kana"},
+{j:"部屋",r:"へや",m:"방",lv:"N5",tag:"kun"},
+{j:"辺",r:"へん",m:"부근·근처",lv:"N5",k:"변",tag:"han"},
+{j:"ペン",r:"ペン",m:"펜",lv:"N5",tag:"kana"},
+{j:"勉強",r:"べんきょう",m:"공부",lv:"N5",k:"면강",tag:"han"},
+{j:"便利",r:"べんり",m:"편리함",lv:"N5",k:"편리",tag:"han"},
+{j:"帽子",r:"ぼうし",m:"모자",lv:"N5",k:"모자",tag:"han"},
+{j:"ボールペン",r:"ボールペン",m:"볼펜",lv:"N5",tag:"kana"},
+{j:"ポケット",r:"ポケット",m:"주머니·포켓",lv:"N5",tag:"kana"},
+{j:"欲しい",r:"ほしい",m:"갖고 싶다·원하다",lv:"N5",tag:"kun"},
+{j:"ポスト",r:"ポスト",m:"우편함·자리",lv:"N5",tag:"kana"},
+{j:"細い",r:"ほそい",m:"가늘다",lv:"N5",tag:"kun"},
+{j:"ボタン",r:"ボタン",m:"단추·버튼",lv:"N5",tag:"kana"},
+{j:"ホテル",r:"ホテル",m:"호텔",lv:"N5",tag:"kana"},
+{j:"本",r:"ほん",m:"~자루(가늘고 긴 것)",lv:"N5",k:"본",tag:"han"},
+{j:"～本",r:"～ほん",m:"~자루(가늘고 긴 것)",lv:"N5",k:"본",tag:"han"},
+{j:"本棚",r:"ほんだな",m:"책장·책꽂이",lv:"N5",tag:"kun"},
+{j:"本当",r:"ほんとう",m:"정말·진짜",lv:"N5",k:"본당",tag:"han"},
+{j:"～枚",r:"～まい",m:"~장(얇은 것)",lv:"N5",k:"매",tag:"han"},
+{j:"毎朝",r:"まいあさ",m:"매일 아침",lv:"N5",k:"매조",tag:"han"},
+{j:"毎月",r:"まいげつ",m:"매달·매월",lv:"N5",k:"매월",tag:"han"},
+{j:"毎週",r:"まいしゅう",m:"매주",lv:"N5",k:"매주",tag:"han"},
+{j:"毎日",r:"まいにち",m:"매일",lv:"N5",k:"매일",tag:"han"},
+{j:"毎年",r:"まいねん",m:"매년",lv:"N5",k:"매년",tag:"han"},
+{j:"毎晩",r:"まいばん",m:"매일 밤",lv:"N5",k:"매만",tag:"han"},
+{j:"前",r:"まえ",m:"~전(앞)",lv:"N5",k:"전",tag:"han"},
+{j:"～前",r:"～まえ",m:"~전(앞)",lv:"N5",k:"전",tag:"han"},
+{j:"曲る",r:"まがる",m:"돌다·구부러지다",lv:"N5",tag:"kun"},
+{j:"まずい",r:"まずい",m:"맛없다·곤란하다",lv:"N5",tag:"kun"},
+{j:"また",r:"また",m:"또·다시",lv:"N5",tag:"kun"},
+{j:"まだ",r:"まだ",m:"아직",lv:"N5",tag:"kun"},
+{j:"町",r:"まち",m:"마을·동네·시가지",lv:"N5",tag:"kun"},
+{j:"待つ",r:"まつ",m:"기다리다",lv:"N5",tag:"kun"},
+{j:"まっすぐ",r:"まっすぐ",m:"곧장·똑바로",lv:"N5",tag:"kun"},
+{j:"マッチ",r:"マッチ",m:"성냥·매치",lv:"N5",tag:"kana"},
+{j:"窓",r:"まど",m:"창문",lv:"N5",tag:"kun"},
+{j:"丸い",r:"まるい",m:"둥글다",lv:"N5",tag:"kun"},
+{j:"万",r:"まん",m:"만(10000)",lv:"N5",k:"만",tag:"han"},
+{j:"万年筆",r:"まんねんひつ",m:"만년필",lv:"N5",k:"만년필",tag:"han"},
+{j:"磨く",r:"みがく",m:"닦다·(이를) 닦다",lv:"N5",tag:"kun"},
+{j:"右",r:"みぎ",m:"오른쪽",lv:"N5",tag:"kun"},
+{j:"短い",r:"みじかい",m:"짧다",lv:"N5",tag:"kun"},
+{j:"水",r:"みず",m:"물",lv:"N5",tag:"kun"},
+{j:"店",r:"みせ",m:"가게·상점",lv:"N5",tag:"kun"},
+{j:"見せる",r:"みせる",m:"보여주다",lv:"N5",tag:"kun"},
+{j:"道",r:"みち",m:"길·도로·방법",lv:"N5",tag:"kun"},
+{j:"三日",r:"みっか",m:"사흘·3일",lv:"N5",tag:"kun"},
+{j:"三つ",r:"みっつ",m:"셋·세 개",lv:"N5",tag:"kun"},
+{j:"緑",r:"みどり",m:"초록·녹색",lv:"N5",tag:"kun"},
+{j:"皆さん",r:"みなさん",m:"여러분",lv:"N5",tag:"kun"},
+{j:"南",r:"みなみ",m:"남쪽",lv:"N5",tag:"kun"},
+{j:"耳",r:"みみ",m:"귀",lv:"N5",tag:"kun"},
+{j:"見る",r:"みる",m:"보다",lv:"N5",tag:"kun"},
+{j:"みんな",r:"みんな",m:"모두·다들",lv:"N5",tag:"kun"},
+{j:"六日",r:"むいか",m:"엿새·6일",lv:"N5",tag:"kun"},
+{j:"向こう",r:"むこう",m:"저쪽·건너편",lv:"N5",tag:"kun"},
+{j:"難しい",r:"むずかしい",m:"어렵다",lv:"N5",tag:"kun"},
+{j:"六つ",r:"むっつ",m:"여섯(개)",lv:"N5",tag:"kun"},
+{j:"村",r:"むら",m:"마을·촌",lv:"N5",tag:"kun"},
+{j:"目",r:"め",m:"눈",lv:"N5",tag:"kun"},
+{j:"メートル",r:"メートル",m:"미터",lv:"N5",tag:"kana"},
+{j:"眼鏡",r:"めがね",m:"안경",lv:"N5",tag:"kun"},
+{j:"もう",r:"もう",m:"이미·벌써·더",lv:"N5",tag:"kun"},
+{j:"木曜日",r:"もくようび",m:"목요일",lv:"N5",k:"목요일",tag:"han"},
+{j:"もしもし",r:"もしもし",m:"여보세요",lv:"N5",tag:"kun"},
+{j:"持つ",r:"もつ",m:"들다·가지다",lv:"N5",tag:"kun"},
+{j:"もっと",r:"もっと",m:"더·더욱",lv:"N5",tag:"kun"},
+{j:"物",r:"もの",m:"물건·것",lv:"N5",tag:"kun"},
+{j:"門",r:"もん",m:"문·대문",lv:"N5",k:"문",tag:"han"},
+{j:"問題",r:"もんだい",m:"문제",lv:"N5",k:"문제",tag:"han"},
+{j:"～屋",r:"～や",m:"~가게·~집",lv:"N5",tag:"kun"},
+{j:"八百屋",r:"やおや",m:"채소가게",lv:"N5",tag:"kun"},
+{j:"野菜",r:"やさい",m:"채소·야채",lv:"N5",k:"야채",tag:"han"},
+{j:"易しい",r:"やさしい",m:"쉽다·간단하다",lv:"N5",tag:"kun"},
+{j:"安い",r:"やすい",m:"싸다·저렴하다",lv:"N5",tag:"kun"},
+{j:"休み",r:"やすみ",m:"휴일·쉼·결석",lv:"N5",tag:"kun"},
+{j:"休む",r:"やすむ",m:"쉬다·휴식하다",lv:"N5",tag:"kun"},
+{j:"八つ",r:"やっつ",m:"여덟(개)",lv:"N5",tag:"kun"},
+{j:"山",r:"やま",m:"산",lv:"N5",tag:"kun"},
+{j:"やる",r:"やる",m:"하다·주다",lv:"N5",tag:"kun"},
+{j:"夕方",r:"ゆうがた",m:"저녁(무렵)",lv:"N5",tag:"kun"},
+{j:"夕飯",r:"ゆうはん",m:"저녁밥",lv:"N5",tag:"kun"},
+{j:"郵便局",r:"ゆうびんきょく",m:"우체국",lv:"N5",k:"우편국",tag:"han"},
+{j:"昨夜",r:"ゆうべ",m:"어젯밤",lv:"N5",tag:"kun"},
+{j:"有名",r:"ゆうめい",m:"유명함",lv:"N5",k:"유명",tag:"han"},
+{j:"雪",r:"ゆき",m:"눈(날씨)",lv:"N5",tag:"kun"},
+{j:"ゆっくりと",r:"ゆっくりと",m:"천천히·느긋하게",lv:"N5",tag:"kun"},
+{j:"八日",r:"ようか",m:"여드레·8일",lv:"N5",tag:"kun"},
+{j:"洋服",r:"ようふく",m:"양복·(서양식) 옷",lv:"N5",k:"양복",tag:"han"},
+{j:"よく",r:"よく",m:"자주·잘",lv:"N5",tag:"kun"},
+{j:"横",r:"よこ",m:"옆·가로",lv:"N5",tag:"kun"},
+{j:"四日",r:"よっか",m:"나흘·4일",lv:"N5",tag:"kun"},
+{j:"四つ",r:"よっつ",m:"넷·네 개",lv:"N5",tag:"kun"},
+{j:"呼ぶ",r:"よぶ",m:"부르다·초대하다",lv:"N5",tag:"kun"},
+{j:"読む",r:"よむ",m:"읽다",lv:"N5",tag:"kun"},
+{j:"夜",r:"よる",m:"밤",lv:"N5",tag:"kun"},
+{j:"弱い",r:"よわい",m:"약하다",lv:"N5",tag:"kun"},
+{j:"来月",r:"らいげつ",m:"다음 달",lv:"N5",k:"내월",tag:"han"},
+{j:"来週",r:"らいしゅう",m:"다음 주",lv:"N5",k:"내주",tag:"han"},
+{j:"来年",r:"らいねん",m:"내년·다음 해",lv:"N5",k:"내년",tag:"han"},
+{j:"ラジオ",r:"ラジオ",m:"라디오",lv:"N5",tag:"kana"},
+{j:"ラジオカセ",r:"ラジオカセ",m:"라디오 카세트",lv:"N5",tag:"kana"},
+{j:"りっぱ",r:"りっぱ",m:"훌륭함·멋짐",lv:"N5",tag:"kun"},
+{j:"留学生",r:"りゅうがくせい",m:"유학생",lv:"N5",k:"유학생",tag:"han"},
+{j:"両親",r:"りょうしん",m:"부모님·양친",lv:"N5",k:"양친",tag:"han"},
+{j:"料理",r:"りょうり",m:"요리·음식",lv:"N5",k:"요리",tag:"han"},
+{j:"旅行",r:"りょこう",m:"여행",lv:"N5",k:"여행",tag:"han"},
+{j:"零",r:"れい",m:"영·제로",lv:"N5",k:"영",tag:"han"},
+{j:"冷蔵庫",r:"れいぞうこ",m:"냉장고",lv:"N5",k:"냉장고",tag:"han"},
+{j:"レコード",r:"レコード",m:"레코드·음반",lv:"N5",tag:"kana"},
+{j:"レストラン",r:"レストラン",m:"레스토랑·식당",lv:"N5",tag:"kana"},
+{j:"練習",r:"れんしゅう",m:"연습",lv:"N5",k:"연습",tag:"han"},
+{j:"廊下",r:"ろうか",m:"복도",lv:"N5",k:"낭하",tag:"han"},
+{j:"六",r:"ろく",m:"여섯·육",lv:"N5",k:"육",tag:"han"},
+{j:"ワイシャツ",r:"ワイシャツ",m:"와이셔츠",lv:"N5",tag:"kana"},
+{j:"若い",r:"わかい",m:"젊다·어리다",lv:"N5",tag:"kun"},
+{j:"分かる",r:"わかる",m:"알다·이해하다",lv:"N5",tag:"kun"},
+{j:"忘れる",r:"わすれる",m:"잊다·잊어버리다",lv:"N5",tag:"kun"},
+{j:"私",r:"わたし",m:"나·저",lv:"N5",tag:"kun"},
+{j:"渡す",r:"わたす",m:"건네다·넘겨주다",lv:"N5",tag:"kun"},
+{j:"渡る",r:"わたる",m:"건너다",lv:"N5",tag:"kun"},
+{j:"悪い",r:"わるい",m:"나쁘다·잘못되다",lv:"N5",tag:"kun"},
+{j:"踏む",r:"ふむ",m:"밟다",lv:"N4",tag:"kun"},
+{j:"～区",r:"～く",m:"~구(행정구역)",lv:"N4",k:"구",tag:"han"},
+{j:"すっと",r:"すっと",m:"쭉·곧장",lv:"N4",tag:"kun"},
+{j:"盗む",r:"ぬすむ",m:"훔치다",lv:"N4",tag:"kun"},
+{j:"大抵",r:"たいてい",m:"대개·보통",lv:"N4",k:"대저",tag:"han"},
+{j:"とうとう",r:"とうとう",m:"드디어·결국",lv:"N4",tag:"kun"},
+{j:"ガソリン",r:"ガソリン",m:"가솔린·휘발유",lv:"N4",tag:"kana"},
+{j:"鳴る",r:"なる",m:"울리다·소리 나다",lv:"N4",tag:"kun"},
+{j:"しっかり",r:"しっかり",m:"단단히·확실히",lv:"N4",tag:"kun"},
+{j:"生きる",r:"いきる",m:"살다·살아가다",lv:"N4",tag:"kun"},
+{j:"苦い",r:"にがい",m:"쓰다(맛)",lv:"N4",tag:"kun"},
+{j:"沸く",r:"わく",m:"끓다",lv:"N4",tag:"kun"},
+{j:"意見",r:"いけん",m:"의견",lv:"N4",k:"의견",tag:"han"},
+{j:"やはり",r:"やはり",m:"역시·아무래도",lv:"N4",tag:"kun"},
+{j:"漫画",r:"まんが",m:"만화",lv:"N4",k:"만화",tag:"han"},
+{j:"ステレオ",r:"ステレオ",m:"스테레오",lv:"N4",tag:"kana"},
+{j:"医学",r:"いがく",m:"의학",lv:"N4",k:"의학",tag:"han"},
+{j:"テキスト",r:"テキスト",m:"텍스트·교과서",lv:"N4",tag:"kana"},
+{j:"折る",r:"おる",m:"꺾다·접다",lv:"N4",tag:"kun"},
+{j:"～会",r:"～かい",m:"~회·~모임",lv:"N4",k:"회",tag:"han"},
+{j:"うかがう",r:"うかがう",m:"여쭙다·방문하다",lv:"N4",tag:"kun"},
+{j:"聞こえる",r:"きこえる",m:"들리다",lv:"N4",tag:"kun"},
+{j:"僕",r:"ぼく",m:"나(남성 비공식)",lv:"N4",tag:"kun"},
+{j:"必ず",r:"かならず",m:"반드시·꼭",lv:"N4",tag:"kun"},
+{j:"壊す",r:"こわす",m:"부수다·고장내다",lv:"N4",tag:"kun"},
+{j:"怒る",r:"おこる",m:"화내다",lv:"N4",tag:"kun"},
+{j:"床屋",r:"とこや",m:"이발소",lv:"N4",tag:"kun"},
+{j:"オートバイ",r:"オートバイ",m:"오토바이",lv:"N4",tag:"kana"},
+{j:"運動",r:"うんどう",m:"운동",lv:"N4",k:"운동",tag:"han"},
+{j:"止む",r:"やむ",m:"그치다·멈추다",lv:"N4",tag:"kun"},
+{j:"もし",r:"もし",m:"만약",lv:"N4",tag:"kun"},
+{j:"表",r:"おもて",m:"표면·앞면·겉",lv:"N4",k:"표",tag:"han"},
+{j:"大学生",r:"だいがくせい",m:"대학생",lv:"N4",k:"대학생",tag:"han"},
+{j:"運転手",r:"うんてんしゅ",m:"운전기사·드라이버",lv:"N4",k:"운전수",tag:"han"},
+{j:"予習",r:"よしゅう",m:"예습",lv:"N4",k:"예습",tag:"han"},
+{j:"心配",r:"しんぱい",m:"걱정",lv:"N4",k:"심배",tag:"han"},
+{j:"別",r:"べつ",m:"다름·별도",lv:"N4",k:"별",tag:"han"},
+{j:"非常に",r:"ひじょうに",m:"매우·극히",lv:"N4",k:"비상",tag:"han"},
+{j:"お宅",r:"おたく",m:"댁(남의 집 존칭)",lv:"N4",tag:"kun"},
+{j:"柔らかい",r:"やわらかい",m:"부드럽다·연하다",lv:"N4",tag:"kun"},
+{j:"拾う",r:"ひろう",m:"줍다",lv:"N4",tag:"kun"},
+{j:"～ございます",r:"～ございます",m:"있습니다(공손)",lv:"N4",tag:"kun"},
+{j:"気",r:"き",m:"기분·마음·기운",lv:"N4",k:"기",tag:"han"},
+{j:"比べる",r:"くらべる",m:"비교하다",lv:"N4",tag:"kun"},
+{j:"ほとんど",r:"ほとんど",m:"거의·대부분",lv:"N4",tag:"kun"},
+{j:"つもり",r:"つもり",m:"~할 생각·예정",lv:"N4",tag:"kun"},
+{j:"郊外",r:"こうがい",m:"교외",lv:"N4",k:"교외",tag:"han"},
+{j:"だめ",r:"だめ",m:"안 됨·소용없음",lv:"N4",tag:"kun"},
+{j:"売り場",r:"うりば",m:"매장·판매 장소",lv:"N4",k:"매장",tag:"han"},
+{j:"正月",r:"しょうがつ",m:"정월·설날",lv:"N4",k:"정월",tag:"han"},
+{j:"規則",r:"きそく",m:"규칙",lv:"N4",k:"규칙",tag:"han"},
+{j:"うん",r:"うん",m:"응·그래(비공식)",lv:"N4",tag:"kun"},
+{j:"発音",r:"はつおん",m:"발음",lv:"N4",k:"발음",tag:"han"},
+{j:"焼く",r:"やく",m:"굽다",lv:"N4",tag:"kun"},
+{j:"屋上",r:"おくじょう",m:"옥상",lv:"N4",k:"옥상",tag:"han"},
+{j:"失礼",r:"しつれい",m:"실례",lv:"N4",k:"실례",tag:"han"},
+{j:"ごみ",r:"ごみ",m:"쓰레기",lv:"N4",tag:"kun"},
+{j:"アフリカ",r:"アフリカ",m:"아프리카",lv:"N4",tag:"kana"},
+{j:"点",r:"てん",m:"점수·점",lv:"N4",k:"점",tag:"han"},
+{j:"一生懸命",r:"いっしょうけんめい",m:"열심히·전력으로",lv:"N4",k:"일생현명",tag:"han"},
+{j:"今度",r:"こんど",m:"이번·다음 번",lv:"N4",k:"금도",tag:"han"},
+{j:"機会",r:"きかい",m:"기회",lv:"N4",k:"기회",tag:"han"},
+{j:"建てる",r:"たてる",m:"짓다·세우다",lv:"N4",tag:"kun"},
+{j:"複雑",r:"ふくざつ",m:"복잡함",lv:"N4",k:"복잡",tag:"han"},
+{j:"彼",r:"かれ",m:"그·남자친구",lv:"N4",tag:"kun"},
+{j:"いらっしゃる",r:"いらっしゃる",m:"계시다·오시다(존경)",lv:"N4",tag:"kun"},
+{j:"布団",r:"ふとん",m:"이불·요",lv:"N4",tag:"kun"},
+{j:"大事",r:"だいじ",m:"중요함·소중함",lv:"N4",k:"대사",tag:"han"},
+{j:"贈り物",r:"おくりもの",m:"선물",lv:"N4",tag:"kun"},
+{j:"泥棒",r:"どろぼう",m:"도둑",lv:"N4",tag:"kun"},
+{j:"～製",r:"～せい",m:"~제(~제조)",lv:"N4",k:"제",tag:"han"},
+{j:"注意",r:"ちゅうい",m:"주의·주목",lv:"N4",k:"주의",tag:"han"},
+{j:"台風",r:"たいふう",m:"태풍",lv:"N4",k:"태풍",tag:"han"},
+{j:"日",r:"ひ",m:"해·햇빛·날",lv:"N4",tag:"kun"},
+{j:"～軒",r:"～けん",m:"~채(집 수)",lv:"N4",k:"헌",tag:"han"},
+{j:"そう",r:"そう",m:"그래·그렇군",lv:"N4",tag:"kun"},
+{j:"通る",r:"とおる",m:"지나다·통과하다",lv:"N4",tag:"kun"},
+{j:"過ぎる",r:"すぎる",m:"지나치다·넘다",lv:"N4",tag:"kun"},
+{j:"レポート",r:"レポート",m:"리포트·보고서",lv:"N4",tag:"kana"},
+{j:"葉",r:"は",m:"잎",lv:"N4",tag:"kun"},
+{j:"必要",r:"ひつよう",m:"필요함",lv:"N4",k:"필요",tag:"han"},
+{j:"課長",r:"かちょう",m:"과장",lv:"N4",k:"과장",tag:"han"},
+{j:"地震",r:"じしん",m:"지진",lv:"N4",k:"지진",tag:"han"},
+{j:"と",r:"と",m:"그러자·그러면",lv:"N4",tag:"kun"},
+{j:"止める",r:"やめる",m:"멈추다·그만하다",lv:"N4",tag:"kun"},
+{j:"ガラス",r:"ガラス",m:"유리",lv:"N4",tag:"kana"},
+{j:"～学部",r:"～がくぶ",m:"학부",lv:"N4",k:"학부",tag:"han"},
+{j:"厳しい",r:"きびしい",m:"엄하다·혹독하다",lv:"N4",tag:"kun"},
+{j:"エスカレーター",r:"エスカレーター",m:"에스컬레이터",lv:"N4",tag:"kana"},
+{j:"人口",r:"じんこう",m:"인구",lv:"N4",k:"인구",tag:"han"},
+{j:"月",r:"つき",m:"달(천체)",lv:"N4",tag:"kun"},
+{j:"絹",r:"きぬ",m:"비단·실크",lv:"N4",tag:"kun"},
+{j:"ちっとも",r:"ちっとも",m:"전혀(부정)",lv:"N4",tag:"kun"},
+{j:"深い",r:"ふかい",m:"깊다",lv:"N4",tag:"kun"},
+{j:"壊れる",r:"こわれる",m:"부서지다·고장 나다",lv:"N4",tag:"kun"},
+{j:"揺れる",r:"ゆれる",m:"흔들리다",lv:"N4",tag:"kun"},
+{j:"落る",r:"おちる",m:"떨어지다",lv:"N4",tag:"kun"},
+{j:"できるだけ",r:"できるだけ",m:"가능한 한·될 수 있으면",lv:"N4",tag:"kun"},
+{j:"悲しい",r:"かなしい",m:"슬프다",lv:"N4",tag:"kun"},
+{j:"中学校",r:"ちゅうがっこう",m:"중학교",lv:"N4",k:"중학교",tag:"han"},
+{j:"ガス",r:"ガス",m:"가스",lv:"N4",tag:"kana"},
+{j:"祈る",r:"いのる",m:"기도하다·바라다",lv:"N4",tag:"kun"},
+{j:"盛ん",r:"さかん",m:"번성함·왕성함",lv:"N4",tag:"kun"},
+{j:"アルバイト",r:"アルバイト",m:"아르바이트·알바",lv:"N4",tag:"kana"},
+{j:"起こす",r:"おこす",m:"깨우다·일으키다",lv:"N4",tag:"kun"},
+{j:"致す",r:"いたす",m:"하다(겸양)",lv:"N4",tag:"kun"},
+{j:"噛む",r:"かむ",m:"씹다·물다",lv:"N4",tag:"kun"},
+{j:"赤ちゃん",r:"あかちゃん",m:"아기",lv:"N4",tag:"kun"},
+{j:"浅い",r:"あさい",m:"얕다·가볍다",lv:"N4",tag:"kun"},
+{j:"嘘",r:"うそ",m:"거짓말",lv:"N4",tag:"kun"},
+{j:"小説",r:"しょうせつ",m:"소설",lv:"N4",k:"소설",tag:"han"},
+{j:"親",r:"おや",m:"부모",lv:"N4",tag:"kun"},
+{j:"それに",r:"それに",m:"게다가·그 위에",lv:"N4",tag:"kun"},
+{j:"西洋",r:"せいよう",m:"서양",lv:"N4",k:"서양",tag:"han"},
+{j:"思う",r:"おもう",m:"생각하다",lv:"N4",tag:"kun"},
+{j:"パート",r:"パート",m:"파트타임",lv:"N4",tag:"kana"},
+{j:"時代",r:"じだい",m:"시대",lv:"N4",k:"시대",tag:"han"},
+{j:"申し上げる",r:"もうしあげる",m:"말씀드리다(겸양)",lv:"N4",tag:"kun"},
+{j:"～式",r:"～しき",m:"~식(행사·방식)",lv:"N4",k:"식",tag:"han"},
+{j:"出席",r:"しゅっせき",m:"출석",lv:"N4",k:"출석",tag:"han"},
+{j:"～家",r:"～か",m:"~가(전문가)",lv:"N4",k:"가",tag:"han"},
+{j:"迎える",r:"むかえる",m:"맞이하다·마중하다",lv:"N4",tag:"kun"},
+{j:"触る",r:"さわる",m:"만지다",lv:"N4",tag:"kun"},
+{j:"建て",r:"～だて",m:"~층짜리·~건물",lv:"N4",tag:"kun"},
+{j:"社長",r:"しゃちょう",m:"사장",lv:"N4",k:"사장",tag:"han"},
+{j:"動物園",r:"どうぶつえん",m:"동물원",lv:"N4",k:"동물원",tag:"han"},
+{j:"捕まえる",r:"つかまえる",m:"붙잡다",lv:"N4",tag:"kun"},
+{j:"季節",r:"きせつ",m:"계절",lv:"N4",k:"계절",tag:"han"},
+{j:"寄る",r:"よる",m:"들르다·가까이 가다",lv:"N4",tag:"kun"},
+{j:"決まる",r:"きまる",m:"결정되다",lv:"N4",tag:"kun"},
+{j:"逃げる",r:"にげる",m:"도망가다",lv:"N4",tag:"kun"},
+{j:"だから",r:"だから",m:"그러니까·그래서",lv:"N4",tag:"kun"},
+{j:"残念",r:"ざんねん",m:"유감스러움·아쉬움",lv:"N4",k:"잔념",tag:"han"},
+{j:"畳",r:"たたみ",m:"다다미",lv:"N4",tag:"kun"},
+{j:"丁寧",r:"ていねい",m:"정중함·공손함",lv:"N4",k:"정녕",tag:"han"},
+{j:"地理",r:"ちり",m:"지리",lv:"N4",k:"지리",tag:"han"},
+{j:"さっき",r:"さっき",m:"아까·방금 전",lv:"N4",tag:"kun"},
+{j:"怖い",r:"こわい",m:"무섭다·두렵다",lv:"N4",tag:"kun"},
+{j:"包む",r:"つつむ",m:"싸다·포장하다",lv:"N4",tag:"kun"},
+{j:"なるべく",r:"なるべく",m:"될 수 있으면·가급적",lv:"N4",tag:"kun"},
+{j:"無理",r:"むり",m:"무리·억지",lv:"N4",k:"무리",tag:"han"},
+{j:"サンドイッチ",r:"サンドイッチ",m:"샌드위치",lv:"N4",tag:"kana"},
+{j:"会議室",r:"かいぎしつ",m:"회의실",lv:"N4",k:"회의실",tag:"han"},
+{j:"品物",r:"しなもの",m:"물건·상품",lv:"N4",k:"품물",tag:"han"},
+{j:"人形",r:"にんぎょう",m:"인형",lv:"N4",k:"인형",tag:"han"},
+{j:"利用",r:"りよう",m:"이용",lv:"N4",k:"이용",tag:"han"},
+{j:"飾る",r:"かざる",m:"장식하다",lv:"N4",tag:"kun"},
+{j:"恥ずかしい",r:"はずかしい",m:"부끄럽다·창피하다",lv:"N4",tag:"kun"},
+{j:"いくら～ても",r:"いくら～ても",m:"아무리 ~해도",lv:"N4",tag:"kun"},
+{j:"用事",r:"ようじ",m:"용무·볼일",lv:"N4",k:"용사",tag:"han"},
+{j:"ビル",r:"ビル",m:"빌딩·건물",lv:"N4",tag:"kana"},
+{j:"けんか",r:"けんか",m:"싸우다·다투다",lv:"N4",tag:"kun"},
+{j:"頑張る",r:"がんばる",m:"열심히 하다·분발하다",lv:"N4",tag:"kun"},
+{j:"投げる",r:"なげる",m:"던지다",lv:"N4",tag:"kun"},
+{j:"故障",r:"こしょう",m:"고장",lv:"N4",k:"고장",tag:"han"},
+{j:"力",r:"ちから",m:"힘·능력",lv:"N4",tag:"kun"},
+{j:"受ける",r:"うける",m:"받다·치르다(시험)",lv:"N4",tag:"kun"},
+{j:"気分",r:"きぶん",m:"기분",lv:"N4",k:"기분",tag:"han"},
+{j:"間違える",r:"まちがえる",m:"틀리다·착각하다",lv:"N4",tag:"kun"},
+{j:"そんな",r:"そんな",m:"그런",lv:"N4",tag:"kun"},
+{j:"星",r:"ほし",m:"별",lv:"N4",tag:"kun"},
+{j:"場合",r:"ばあい",m:"경우",lv:"N4",k:"장합",tag:"han"},
+{j:"やっと",r:"やっと",m:"겨우·간신히",lv:"N4",tag:"kun"},
+{j:"足りる",r:"たりる",m:"충분하다·족하다",lv:"N4",tag:"kun"},
+{j:"行う",r:"おこなう",m:"행하다·실시하다",lv:"N4",tag:"kun"},
+{j:"ぶどう",r:"ぶどう",m:"포도",lv:"N4",tag:"kun"},
+{j:"無くなる",r:"なくなる",m:"없어지다·사라지다",lv:"N4",tag:"kun"},
+{j:"準備",r:"じゅんび",m:"준비",lv:"N4",k:"준비",tag:"han"},
+{j:"世界",r:"せかい",m:"세계",lv:"N4",k:"세계",tag:"han"},
+{j:"住所",r:"じゅうしょ",m:"주소",lv:"N4",k:"주소",tag:"han"},
+{j:"再来月",r:"さらいげつ",m:"다다음 달",lv:"N4",tag:"kun"},
+{j:"林",r:"はやし",m:"숲·삼림",lv:"N4",tag:"kun"},
+{j:"倍",r:"ばい",m:"배(곱절)",lv:"N4",k:"배",tag:"han"},
+{j:"痩せる",r:"やせる",m:"마르다·살 빠지다",lv:"N4",tag:"kun"},
+{j:"線",r:"せん",m:"선",lv:"N4",k:"선",tag:"han"},
+{j:"戦争",r:"せんそう",m:"전쟁",lv:"N4",k:"전쟁",tag:"han"},
+{j:"決める",r:"きめる",m:"결정하다",lv:"N4",tag:"kun"},
+{j:"調べる",r:"しらべる",m:"조사하다·알아보다",lv:"N4",tag:"kun"},
+{j:"寝坊",r:"ねぼう",m:"늦잠",lv:"N4",tag:"kun"},
+{j:"パパ",r:"パパ",m:"아빠",lv:"N4",tag:"kana"},
+{j:"光る",r:"ひかる",m:"빛나다",lv:"N4",tag:"kun"},
+{j:"夫",r:"おっと",m:"남편",lv:"N4",tag:"kun"},
+{j:"雲",r:"くも",m:"구름",lv:"N4",tag:"kun"},
+{j:"坂",r:"さか",m:"비탈·언덕",lv:"N4",tag:"kun"},
+{j:"～しまう",r:"～しまう",m:"~해 버리다",lv:"N4",tag:"kun"},
+{j:"飛行場",r:"ひこうじょう",m:"비행장",lv:"N4",k:"비행장",tag:"han"},
+{j:"柔道",r:"じゅうどう",m:"유도",lv:"N4",k:"유도",tag:"han"},
+{j:"決して",r:"けっして",m:"결코(부정)",lv:"N4",k:"결",tag:"han"},
+{j:"事務所",r:"じむしょ",m:"사무소",lv:"N4",k:"사무소",tag:"han"},
+{j:"連絡",r:"れんらく",m:"연락",lv:"N4",k:"연락",tag:"han"},
+{j:"小学校",r:"しょうがっこう",m:"초등학교",lv:"N4",k:"소학교",tag:"han"},
+{j:"客",r:"きゃく",m:"손님·고객",lv:"N4",k:"객",tag:"han"},
+{j:"昔",r:"むかし",m:"옛날",lv:"N4",tag:"kun"},
+{j:"美しい",r:"うつくしい",m:"아름답다",lv:"N4",tag:"kun"},
+{j:"捨てる",r:"すてる",m:"버리다",lv:"N4",tag:"kun"},
+{j:"なさる",r:"なさる",m:"하시다(존경)",lv:"N4",tag:"kun"},
+{j:"事",r:"こと",m:"일·것",lv:"N4",tag:"kun"},
+{j:"どんどん",r:"どんどん",m:"계속·착착",lv:"N4",tag:"kun"},
+{j:"試合",r:"しあい",m:"시합·경기",lv:"N4",k:"시합",tag:"han"},
+{j:"適当",r:"てきとう",m:"적당함·알맞음",lv:"N4",k:"적당",tag:"han"},
+{j:"素晴らしい",r:"すばらしい",m:"훌륭하다·멋지다",lv:"N4",tag:"kun"},
+{j:"美術館",r:"びじゅつかん",m:"미술관",lv:"N4",k:"미술관",tag:"han"},
+{j:"文法",r:"ぶんぽう",m:"문법",lv:"N4",k:"문법",tag:"han"},
+{j:"終わり",r:"おわり",m:"끝·마무리",lv:"N4",tag:"kun"},
+{j:"壁",r:"かべ",m:"벽·담",lv:"N4",k:"벽",tag:"han"},
+{j:"一度",r:"いちど",m:"한 번",lv:"N4",k:"일도",tag:"han"},
+{j:"お礼",r:"おれい",m:"감사 인사·감사 선물",lv:"N4",tag:"kun"},
+{j:"親切",r:"しんせつ",m:"친절",lv:"N4",k:"친절",tag:"han"},
+{j:"知らせる",r:"しらせる",m:"알리다",lv:"N4",tag:"kun"},
+{j:"歯医者",r:"はいしゃ",m:"치과의사",lv:"N4",tag:"kun"},
+{j:"熱心",r:"ねっしん",m:"열심",lv:"N4",k:"열심",tag:"han"},
+{j:"始める",r:"はじめる",m:"~하기 시작하다",lv:"N4",tag:"kun"},
+{j:"もらう",r:"もらう",m:"받다",lv:"N4",tag:"kun"},
+{j:"泣く",r:"なく",m:"울다",lv:"N4",tag:"kun"},
+{j:"治る",r:"なおる",m:"낫다·회복되다",lv:"N4",tag:"kun"},
+{j:"熱",r:"ねつ",m:"열·고열",lv:"N4",k:"열",tag:"han"},
+{j:"お祭り",r:"おまつり",m:"축제",lv:"N4",tag:"kun"},
+{j:"水道",r:"すいどう",m:"수도(물)",lv:"N4",k:"수도",tag:"han"},
+{j:"匂い",r:"におい",m:"냄새·향기",lv:"N4",tag:"kun"},
+{j:"ベル",r:"ベル",m:"벨·종",lv:"N4",tag:"kana"},
+{j:"赤ん坊",r:"あかんぼう",m:"아기·갓난아이",lv:"N4",tag:"kun"},
+{j:"おかしい",r:"おかしい",m:"이상하다·우습다",lv:"N4",tag:"kun"},
+{j:"事故",r:"じこ",m:"사고",lv:"N4",k:"사고",tag:"han"},
+{j:"変",r:"へん",m:"이상함·특이함",lv:"N4",k:"변",tag:"han"},
+{j:"辞典",r:"じてん",m:"사전·자전",lv:"N4",k:"사전",tag:"han"},
+{j:"残る",r:"のこる",m:"남다",lv:"N4",tag:"kun"},
+{j:"立てる",r:"たてる",m:"세우다",lv:"N4",tag:"kun"},
+{j:"くれる",r:"くれる",m:"주다",lv:"N4",tag:"kun"},
+{j:"～員",r:"～いん",m:"~원(직원·구성원)",lv:"N4",k:"원",tag:"han"},
+{j:"原因",r:"げんいん",m:"원인",lv:"N4",k:"원인",tag:"han"},
+{j:"驚く",r:"おどろく",m:"놀라다",lv:"N4",tag:"kun"},
+{j:"いただく",r:"頂く",m:"받다·먹다(겸양)",lv:"N4",tag:"kun"},
+{j:"祖母",r:"そぼ",m:"할머니",lv:"N4",k:"조모",tag:"han"},
+{j:"場所",r:"ばしょ",m:"장소",lv:"N4",k:"장소",tag:"han"},
+{j:"答",r:"こたえ",m:"답·정답",lv:"N4",k:"답",tag:"han"},
+{j:"もちろん",r:"もちろん",m:"물론",lv:"N4",tag:"kun"},
+{j:"漬ける",r:"つける",m:"담그다·절이다",lv:"N4",tag:"kun"},
+{j:"受付",r:"うけつけ",m:"접수처·접수",lv:"N4",k:"접수",tag:"han"},
+{j:"内",r:"うち",m:"내부·이내",lv:"N4",k:"내",tag:"han"},
+{j:"スクリーン",r:"スクリーン",m:"스크린",lv:"N4",tag:"kana"},
+{j:"増える",r:"ふえる",m:"늘다·증가하다",lv:"N4",tag:"kun"},
+{j:"または",r:"または",m:"또는·혹은",lv:"N4",tag:"kun"},
+{j:"けが",r:"けが",m:"다치다",lv:"N4",tag:"kun"},
+{j:"以下",r:"いか",m:"이하",lv:"N4",k:"이하",tag:"han"},
+{j:"選ぶ",r:"えらぶ",m:"선택하다·고르다",lv:"N4",tag:"kun"},
+{j:"～ばかり",r:"～ばかり",m:"~뿐·~만",lv:"N4",tag:"kun"},
+{j:"心",r:"こころ",m:"마음·심",lv:"N4",k:"심",tag:"han"},
+{j:"～だす",r:"～だす",m:"~시작하다",lv:"N4",tag:"kun"},
+{j:"サラダ",r:"サラダ",m:"샐러드",lv:"N4",tag:"kana"},
+{j:"届ける",r:"とどける",m:"전달하다·신고하다",lv:"N4",tag:"kun"},
+{j:"挨拶",r:"あいさつ",m:"인사",lv:"N4",tag:"kun"},
+{j:"景色",r:"けしき",m:"경치·풍경",lv:"N4",k:"경색",tag:"han"},
+{j:"確か",r:"たしか",m:"확실함·아마",lv:"N4",k:"확",tag:"han"},
+{j:"ステーキ",r:"ステーキ",m:"스테이크",lv:"N4",tag:"kana"},
+{j:"食料品",r:"しょくりょうひん",m:"식료품",lv:"N4",k:"식료품",tag:"han"},
+{j:"森",r:"もり",m:"숲",lv:"N4",tag:"kun"},
+{j:"以内",r:"いない",m:"이내",lv:"N4",k:"이내",tag:"han"},
+{j:"予定",r:"よてい",m:"예정",lv:"N4",k:"예정",tag:"han"},
+{j:"オーバー",r:"オーバー",m:"오버코트·초과",lv:"N4",tag:"kana"},
+{j:"乾く",r:"かわく",m:"마르다(건조해지다)",lv:"N4",tag:"kun"},
+{j:"石",r:"いし",m:"돌",lv:"N4",tag:"kun"},
+{j:"思い出す",r:"おもいだす",m:"떠올리다·생각해 내다",lv:"N4",tag:"kun"},
+{j:"踊る",r:"おどる",m:"춤추다",lv:"N4",tag:"kun"},
+{j:"細かい",r:"こまかい",m:"잘다·세밀하다",lv:"N4",tag:"kun"},
+{j:"塗る",r:"ぬる",m:"바르다·칠하다",lv:"N4",tag:"kun"},
+{j:"ご主人",r:"ごしゅじん",m:"(남의) 남편(공손)",lv:"N4",tag:"kun"},
+{j:"珍しい",r:"めずらしい",m:"드물다·희귀하다",lv:"N4",tag:"kun"},
+{j:"用",r:"よう",m:"용무·볼일",lv:"N4",k:"용",tag:"han"},
+{j:"公務員",r:"こうむいん",m:"공무원",lv:"N4",k:"공무원",tag:"han"},
+{j:"お嬢さん",r:"おじょうさん",m:"(남의) 딸·아가씨(공손)",lv:"N4",tag:"kun"},
+{j:"用意",r:"ようい",m:"준비·채비",lv:"N4",k:"용의",tag:"han"},
+{j:"探す",r:"さがす",m:"찾다",lv:"N4",tag:"kun"},
+{j:"形",r:"かたち",m:"형태·모양",lv:"N4",k:"형",tag:"han"},
+{j:"運転",r:"うんてん",m:"운전",lv:"N4",k:"운전",tag:"han"},
+{j:"すっかり",r:"すっかり",m:"완전히·싹",lv:"N4",tag:"kun"},
+{j:"アナウンサー",r:"アナウンサー",m:"아나운서",lv:"N4",tag:"kana"},
+{j:"お土産",r:"おみやげ",m:"기념품·선물",lv:"N4",tag:"kun"},
+{j:"消しゴム",r:"けしゴム",m:"지우개",lv:"N4",tag:"kun"},
+{j:"旅館",r:"りょかん",m:"여관",lv:"N4",k:"여관",tag:"han"},
+{j:"海岸",r:"かいがん",m:"해안",lv:"N4",k:"해안",tag:"han"},
+{j:"寂しい",r:"さびしい",m:"외롭다·쓸쓸하다",lv:"N4",tag:"kun"},
+{j:"火",r:"ひ",m:"불",lv:"N4",tag:"kun"},
+{j:"育てる",r:"そだてる",m:"기르다·키우다",lv:"N4",tag:"kun"},
+{j:"味噌",r:"みそ",m:"된장",lv:"N4",tag:"kun"},
+{j:"お祝い",r:"おいわい",m:"축하·축하 선물",lv:"N4",tag:"kun"},
+{j:"乗り物",r:"のりもの",m:"탈것·교통수단",lv:"N4",tag:"kun"},
+{j:"案内",r:"あんない",m:"안내",lv:"N4",k:"안내",tag:"han"},
+{j:"通う",r:"かよう",m:"다니다·통학하다",lv:"N4",tag:"kun"},
+{j:"連れる",r:"つれる",m:"데리다·데려가다",lv:"N4",tag:"kun"},
+{j:"技術",r:"ぎじゅつ",m:"기술",lv:"N4",k:"기술",tag:"han"},
+{j:"小鳥",r:"ことり",m:"작은 새",lv:"N4",tag:"kun"},
+{j:"下宿",r:"げしゅく",m:"하숙",lv:"N4",k:"하숙",tag:"han"},
+{j:"ジャム",r:"ジャム",m:"잼",lv:"N4",tag:"kana"},
+{j:"招待",r:"しょうたい",m:"초대",lv:"N4",k:"초대",tag:"han"},
+{j:"鏡",r:"かがみ",m:"거울",lv:"N4",tag:"kun"},
+{j:"はず",r:"はず",m:"~일 것·~해야 함",lv:"N4",tag:"kun"},
+{j:"法律",r:"ほうりつ",m:"법률",lv:"N4",k:"법률",tag:"han"},
+{j:"進む",r:"すすむ",m:"나아가다·진행되다",lv:"N4",tag:"kun"},
+{j:"楽む",r:"たのしむ",m:"즐기다",lv:"N4",tag:"kun"},
+{j:"貿易",r:"ぼうえき",m:"무역",lv:"N4",k:"무역",tag:"han"},
+{j:"反対",r:"はんたい",m:"반대",lv:"N4",k:"반대",tag:"han"},
+{j:"おる",r:"おる",m:"있다(겸양)",lv:"N4",tag:"kun"},
+{j:"申す",r:"もうす",m:"말하다(겸양)",lv:"N4",tag:"kun"},
+{j:"試験",r:"しけん",m:"시험",lv:"N4",k:"시험",tag:"han"},
+{j:"真面目",r:"まじめ",m:"성실함·진지함",lv:"N4",tag:"kun"},
+{j:"店員",r:"てんいん",m:"점원",lv:"N4",k:"점원",tag:"han"},
+{j:"泊まる",r:"とまる",m:"묵다·숙박하다",lv:"N4",tag:"kun"},
+{j:"よろしい",r:"よろしい",m:"좋습니다·괜찮습니다(공손)",lv:"N4",tag:"kun"},
+{j:"今夜",r:"こんや",m:"오늘 밤",lv:"N4",k:"금야",tag:"han"},
+{j:"おつり",r:"おつり",m:"거스름돈",lv:"N4",tag:"kun"},
+{j:"チェック",r:"チェック",m:"체크하다·확인하다",lv:"N4",tag:"kana"},
+{j:"会話",r:"かいわ",m:"회화",lv:"N4",k:"회화",tag:"han"},
+{j:"空気",r:"くうき",m:"공기",lv:"N4",k:"공기",tag:"han"},
+{j:"交通",r:"こうつう",m:"교통",lv:"N4",k:"교통",tag:"han"},
+{j:"ワープロ",r:"ワープロ",m:"워드프로세서",lv:"N4",tag:"kana"},
+{j:"喜ぶ",r:"よろこぶ",m:"기뻐하다",lv:"N4",tag:"kun"},
+{j:"急行",r:"きゅうこう",m:"급행",lv:"N4",k:"급행",tag:"han"},
+{j:"皆",r:"みな",m:"모두·다들",lv:"N4",tag:"kun"},
+{j:"味",r:"あじ",m:"맛",lv:"N4",k:"미",tag:"han"},
+{j:"空港",r:"くうこう",m:"공항",lv:"N4",k:"공항",tag:"han"},
+{j:"手袋",r:"てぶくろ",m:"장갑",lv:"N4",tag:"kun"},
+{j:"校長",r:"こうちょう",m:"교장",lv:"N4",k:"교장",tag:"han"},
+{j:"ごちそう",r:"ごちそう",m:"잔치·대접",lv:"N4",tag:"kun"},
+{j:"踊り",r:"おどり",m:"춤",lv:"N4",tag:"kun"},
+{j:"興味",r:"きょうみ",m:"흥미·관심",lv:"N4",k:"흥미",tag:"han"},
+{j:"引っ越す",r:"ひっこす",m:"이사하다",lv:"N4",tag:"kun"},
+{j:"冷房",r:"れいぼう",m:"냉방·에어컨",lv:"N4",k:"냉방",tag:"han"},
+{j:"都合",r:"つごう",m:"사정·형편",lv:"N4",tag:"kun"},
+{j:"遠慮",r:"えんりょ",m:"사양·삼감",lv:"N4",k:"원려",tag:"han"},
+{j:"亡くなる",r:"なくなる",m:"돌아가시다",lv:"N4",tag:"kun"},
+{j:"科学",r:"かがく",m:"과학",lv:"N4",k:"과학",tag:"han"},
+{j:"はっきり",r:"はっきり",m:"분명히·뚜렷이",lv:"N4",tag:"kun"},
+{j:"差し上げる",r:"さしあげる",m:"드리다(겸양)",lv:"N4",tag:"kun"},
+{j:"気持ち",r:"きもち",m:"기분·마음",lv:"N4",k:"기지",tag:"han"},
+{j:"祖父",r:"そふ",m:"할아버지",lv:"N4",k:"조부",tag:"han"},
+{j:"港",r:"みなと",m:"항구",lv:"N4",k:"항구",tag:"han"},
+{j:"予約",r:"よやく",m:"예약",lv:"N4",k:"예약",tag:"han"},
+{j:"凄い",r:"すごい",m:"굉장하다·대단하다",lv:"N4",tag:"kun"},
+{j:"入学",r:"にゅうがく",m:"입학",lv:"N4",k:"입학",tag:"han"},
+{j:"片付ける",r:"かたづける",m:"정리하다",lv:"N4",tag:"kun"},
+{j:"写す",r:"うつす",m:"옮겨 쓰다·촬영하다",lv:"N4",tag:"kun"},
+{j:"パソコン",r:"パソコン",m:"개인용 컴퓨터·PC",lv:"N4",tag:"kana"},
+{j:"部長",r:"ぶちょう",m:"부장",lv:"N4",k:"부장",tag:"han"},
+{j:"火事",r:"かじ",m:"화재·불",lv:"N4",k:"화재",tag:"han"},
+{j:"足す",r:"たす",m:"더하다(덧셈)",lv:"N4",tag:"kun"},
+{j:"教会",r:"きょうかい",m:"교회",lv:"N4",k:"교회",tag:"han"},
+{j:"彼ら",r:"かれら",m:"그들",lv:"N4",tag:"kun"},
+{j:"一杯",r:"いっぱい",m:"한 잔·가득",lv:"N4",k:"일배",tag:"han"},
+{j:"アメリカ",r:"アメリカ",m:"미국·아메리카",lv:"N4",tag:"kana"},
+{j:"男性",r:"だんせい",m:"남성",lv:"N4",k:"남성",tag:"han"},
+{j:"理由",r:"りゆう",m:"이유",lv:"N4",k:"이유",tag:"han"},
+{j:"生産",r:"せいさん",m:"생산",lv:"N4",k:"생산",tag:"han"},
+{j:"着物",r:"きもの",m:"기모노·일본 전통 의복",lv:"N4",tag:"kun"},
+{j:"おもちゃ",r:"おもちゃ",m:"장난감",lv:"N4",tag:"kun"},
+{j:"暮れる",r:"くれる",m:"저물다·끝나다",lv:"N4",tag:"kun"},
+{j:"釣る",r:"つる",m:"낚시하다",lv:"N4",tag:"kun"},
+{j:"～ちゃん",r:"～ちゃん",m:"~쨩(애칭)",lv:"N4",tag:"kun"},
+{j:"打つ",r:"うつ",m:"치다·때리다",lv:"N4",tag:"kun"},
+{j:"あんな",r:"あんな",m:"저런",lv:"N4",tag:"kun"},
+{j:"謝る",r:"あやまる",m:"사과하다",lv:"N4",tag:"kun"},
+{j:"昼間",r:"ひるま",m:"낮·주간",lv:"N4",k:"주간",tag:"han"},
+{j:"教育",r:"きょういく",m:"교육",lv:"N4",k:"교육",tag:"han"},
+{j:"女性",r:"じょせい",m:"여성",lv:"N4",k:"여성",tag:"han"},
+{j:"米",r:"こめ",m:"쌀",lv:"N4",tag:"kun"},
+{j:"邪魔",r:"じゃま",m:"방해",lv:"N4",k:"사마",tag:"han"},
+{j:"国際",r:"こくさい",m:"국제",lv:"N4",k:"국제",tag:"han"},
+{j:"隅",r:"すみ",m:"모퉁이·구석",lv:"N4",tag:"kun"},
+{j:"伺う",r:"うかがう",m:"방문하다·여쭙다(겸양)",lv:"N4",tag:"kun"},
+{j:"再来週",r:"さらいしゅう",m:"다다음 주",lv:"N4",tag:"kun"},
+{j:"夢",r:"ゆめ",m:"꿈",lv:"N4",tag:"kun"},
+{j:"喉",r:"のど",m:"목(인후)",lv:"N4",tag:"kun"},
+{j:"最近",r:"さいきん",m:"최근",lv:"N4",k:"최근",tag:"han"},
+{j:"周り",r:"まわり",m:"주위·주변",lv:"N4",tag:"kun"},
+{j:"歴史",r:"れきし",m:"역사",lv:"N4",k:"역사",tag:"han"},
+{j:"不便",r:"ふべん",m:"불편함",lv:"N4",k:"불편",tag:"han"},
+{j:"血",r:"ち",m:"피·혈액",lv:"N4",k:"혈",tag:"han"},
+{j:"～続ける",r:"～つづける",m:"계속하다",lv:"N4",tag:"kun"},
+{j:"毛",r:"け",m:"털·머리카락",lv:"N4",tag:"kun"},
+{j:"ひどい",r:"ひどい",m:"심하다·끔찍하다",lv:"N4",tag:"kun"},
+{j:"例えば",r:"たとえば",m:"예를 들면",lv:"N4",tag:"kun"},
+{j:"中々",r:"なかなか",m:"꽤·좀처럼",lv:"N4",tag:"kun"},
+{j:"随分",r:"ずいぶん",m:"상당히·꽤",lv:"N4",tag:"kun"},
+{j:"～やすい",r:"～やすい",m:"~하기 쉽다",lv:"N4",tag:"kun"},
+{j:"押し入れ",r:"おしいれ",m:"벽장",lv:"N4",tag:"kun"},
+{j:"電灯",r:"でんとう",m:"전등",lv:"N4",k:"전등",tag:"han"},
+{j:"叱る",r:"しかる",m:"꾸짖다",lv:"N4",tag:"kun"},
+{j:"サンダル",r:"サンダル",m:"샌들",lv:"N4",tag:"kana"},
+{j:"びっくり",r:"びっくり",m:"깜짝 놀라다",lv:"N4",tag:"kun"},
+{j:"うまい",r:"うまい",m:"맛있다·잘하다",lv:"N4",tag:"kun"},
+{j:"変える",r:"かえる",m:"바꾸다",lv:"N4",tag:"kun"},
+{j:"講堂",r:"こうどう",m:"강당",lv:"N4",k:"강당",tag:"han"},
+{j:"子",r:"こ",m:"아이·자식",lv:"N4",tag:"kun"},
+{j:"沸かす",r:"わかす",m:"끓이다",lv:"N4",tag:"kun"},
+{j:"レジ",r:"レジ",m:"계산대·레지",lv:"N4",tag:"kana"},
+{j:"しばらく",r:"しばらく",m:"잠시·한동안",lv:"N4",tag:"kun"},
+{j:"特に",r:"とくに",m:"특히",lv:"N4",k:"특히",tag:"han"},
+{j:"空く",r:"あく",m:"비다·한가해지다",lv:"N4",tag:"kun"},
+{j:"計画",r:"けいかく",m:"계획",lv:"N4",k:"계획",tag:"han"},
+{j:"通り",r:"とおり",m:"~가·~거리",lv:"N4",k:"통",tag:"han"},
+{j:"下着",r:"したぎ",m:"속옷",lv:"N4",tag:"kun"},
+{j:"経済",r:"けいざい",m:"경제",lv:"N4",k:"경제",tag:"han"},
+{j:"こう",r:"こう",m:"이렇게",lv:"N4",tag:"kun"},
+{j:"是非",r:"ぜひ",m:"꼭·부디",lv:"N4",k:"시비",tag:"han"},
+{j:"裏",r:"うら",m:"뒷면·안쪽",lv:"N4",tag:"kun"},
+{j:"為",r:"ため",m:"위함·~을 위해",lv:"N4",tag:"kun"},
+{j:"おいでになる",r:"おいでになる",m:"계시다·오시다(존경)",lv:"N4",tag:"kun"},
+{j:"変わる",r:"かわる",m:"바뀌다·변하다",lv:"N4",tag:"kun"},
+{j:"以外",r:"いがい",m:"이외·외에",lv:"N4",k:"이외",tag:"han"},
+{j:"済む",r:"すむ",m:"끝나다·해결되다",lv:"N4",tag:"kun"},
+{j:"ハンバーグ",r:"ハンバーグ",m:"햄버그스테이크",lv:"N4",tag:"kana"},
+{j:"市",r:"し",m:"시(행정 단위)",lv:"N4",k:"시",tag:"han"},
+{j:"引き出し",r:"ひきだし",m:"서랍",lv:"N4",tag:"kun"},
+{j:"遊び",r:"あそび",m:"놀이",lv:"N4",tag:"kun"},
+{j:"支度",r:"したく",m:"채비·준비",lv:"N4",tag:"kun"},
+{j:"～始める",r:"～はじめる",m:"~하기 시작하다",lv:"N4",tag:"kun"},
+{j:"見える",r:"みえる",m:"보이다·오시다(존경)",lv:"N4",tag:"kun"},
+{j:"十分",r:"じゅうぶん",m:"충분함",lv:"N4",k:"십분",tag:"han"},
+{j:"音",r:"おと",m:"소리",lv:"N4",k:"음",tag:"han"},
+{j:"きっと",r:"きっと",m:"분명히·틀림없이",lv:"N4",tag:"kun"},
+{j:"まず",r:"まず",m:"우선·먼저",lv:"N4",tag:"kun"},
+{j:"遠く",r:"とおく",m:"먼 곳·멀리",lv:"N4",tag:"kun"},
+{j:"大体",r:"だいたい",m:"대체로·대략",lv:"N4",k:"대체",tag:"han"},
+{j:"折れる",r:"おれる",m:"부러지다·꺾이다",lv:"N4",tag:"kun"},
+{j:"正しい",r:"ただしい",m:"올바르다·맞다",lv:"N4",tag:"kun"},
+{j:"輸入",r:"ゆにゅう",m:"수입",lv:"N4",k:"수입",tag:"han"},
+{j:"返事",r:"へんじ",m:"대답·회신",lv:"N4",k:"반사",tag:"han"},
+{j:"都",r:"と",m:"도(도쿄도)",lv:"N4",k:"도",tag:"han"},
+{j:"産業",r:"さんぎょう",m:"산업",lv:"N4",k:"산업",tag:"han"},
+{j:"伝える",r:"つたえる",m:"전달하다·전하다",lv:"N4",tag:"kun"},
+{j:"お金持ち",r:"かねもち",m:"부자",lv:"N4",tag:"kun"},
+{j:"説明",r:"せつめい",m:"설명",lv:"N4",k:"설명",tag:"han"},
+{j:"島",r:"しま",m:"섬",lv:"N4",k:"도",tag:"han"},
+{j:"道具",r:"どうぐ",m:"도구·연장",lv:"N4",k:"도구",tag:"han"},
+{j:"滑る",r:"すべる",m:"미끄러지다",lv:"N4",tag:"kun"},
+{j:"それほど",r:"それほど",m:"그다지·그 정도로",lv:"N4",tag:"kun"},
+{j:"以上",r:"いじょう",m:"이상·이것으로 끝",lv:"N4",k:"이상",tag:"han"},
+{j:"～まま",r:"～まま",m:"~인 채로·그대로",lv:"N4",tag:"kun"},
+{j:"特急",r:"とっきゅう",m:"특급(열차)",lv:"N4",k:"특급",tag:"han"},
+{j:"プレゼント",r:"プレゼント",m:"선물·프레젠트",lv:"N4",tag:"kana"},
+{j:"～よると",r:"～よると",m:"~에 따르면",lv:"N4",tag:"kun"},
+{j:"妻",r:"つま",m:"아내",lv:"N4",k:"처",tag:"han"},
+{j:"帰り",r:"かえり",m:"돌아오기·귀가",lv:"N4",k:"귀",tag:"han"},
+{j:"具合",r:"ぐあい",m:"상태·컨디션",lv:"N4",tag:"kun"},
+{j:"堅",r:"かたい",m:"단단하다·딱딱하다",lv:"N4",tag:"kun"},
+{j:"駐車場",r:"ちゅうしゃじょう",m:"주차장",lv:"N4",k:"주차장",tag:"han"},
+{j:"スーツ",r:"スーツ",m:"정장·슈트",lv:"N4",tag:"kana"},
+{j:"危険",r:"きけん",m:"위험",lv:"N4",k:"위험",tag:"han"},
+{j:"髪",r:"かみ",m:"머리카락·두발",lv:"N4",tag:"kun"},
+{j:"天気予報",r:"てんきよほう",m:"일기 예보",lv:"N4",k:"천기예보",tag:"han"},
+{j:"彼女",r:"かのじょ",m:"그녀·여자친구",lv:"N4",tag:"kun"},
+{j:"間",r:"あいだ",m:"사이·간격",lv:"N4",k:"간",tag:"han"},
+{j:"卒業",r:"そつぎょう",m:"졸업",lv:"N4",k:"졸업",tag:"han"},
+{j:"それで",r:"それで",m:"그래서",lv:"N4",tag:"kun"},
+{j:"枝",r:"えだ",m:"나뭇가지",lv:"N4",tag:"kun"},
+{j:"専門",r:"せんもん",m:"전문",lv:"N4",k:"전문",tag:"han"},
+{j:"そろそろ",r:"そろそろ",m:"슬슬·그만",lv:"N4",tag:"kun"},
+{j:"送る",r:"おくる",m:"보내다",lv:"N4",tag:"kun"},
+{j:"あげる",r:"あげる",m:"주다",lv:"N4",tag:"kun"},
+{j:"騒ぐ",r:"さわぐ",m:"떠들다·소란피우다",lv:"N4",tag:"kun"},
+{j:"尋ねる",r:"たずねる",m:"묻다·방문하다",lv:"N4",tag:"kun"},
+{j:"放送",r:"ほうそう",m:"방송",lv:"N4",k:"방송",tag:"han"},
+{j:"政治",r:"せいじ",m:"정치",lv:"N4",k:"정치",tag:"han"},
+{j:"市民",r:"しみん",m:"시민",lv:"N4",k:"시민",tag:"han"},
+{j:"ファックス",r:"ファックス",m:"팩스",lv:"N4",tag:"kana"},
+{j:"負ける",r:"まける",m:"지다·패하다",lv:"N4",tag:"kun"},
+{j:"指輪",r:"ゆびわ",m:"반지",lv:"N4",tag:"kun"},
+{j:"田舎",r:"いなか",m:"시골·지방",lv:"N4",tag:"kun"},
+{j:"見つける",r:"みつける",m:"찾아내다·발견하다",lv:"N4",tag:"kun"},
+{j:"高校生",r:"こうこうせい",m:"고등학생",lv:"N4",k:"고교생",tag:"han"},
+{j:"講義",r:"こうぎ",m:"강의",lv:"N4",k:"강의",tag:"han"},
+{j:"そんなに",r:"そんなに",m:"그렇게·그만큼",lv:"N4",tag:"kun"},
+{j:"昼休み",r:"ひるやすみ",m:"점심 휴식",lv:"N4",tag:"kun"},
+{j:"忘れ物",r:"わすれもの",m:"잊어버린 물건",lv:"N4",tag:"kun"},
+{j:"下りる",r:"おりる",m:"내려오다·내리다",lv:"N4",tag:"kun"},
+{j:"腕",r:"うで",m:"팔",lv:"N4",tag:"kun"},
+{j:"訳",r:"わけ",m:"이유·뜻",lv:"N4",k:"역",tag:"han"},
+{j:"承知",r:"しょうち",m:"알겠습니다·승낙",lv:"N4",k:"승지",tag:"han"},
+{j:"日記",r:"にっき",m:"일기",lv:"N4",k:"일기",tag:"han"},
+{j:"高校",r:"こうこう",m:"고등학교",lv:"N4",k:"고교",tag:"han"},
+{j:"似る",r:"にる",m:"닮다·비슷하다",lv:"N4",tag:"kun"},
+{j:"～おわる",r:"～おわる",m:"~하고 끝내다",lv:"N4",tag:"kun"},
+{j:"暖房",r:"だんぼう",m:"난방",lv:"N4",k:"난방",tag:"han"},
+{j:"留守",r:"るす",m:"부재·집을 비움",lv:"N4",k:"유수",tag:"han"},
+{j:"割合",r:"わりあい",m:"비율·의외로",lv:"N4",k:"할합",tag:"han"},
+{j:"寺",r:"てら",m:"절·사찰",lv:"N4",k:"사",tag:"han"},
+{j:"慣れる",r:"なれる",m:"익숙해지다",lv:"N4",tag:"kun"},
+{j:"普通",r:"ふつう",m:"보통",lv:"N4",k:"보통",tag:"han"},
+{j:"手伝う",r:"てつだう",m:"돕다·거들다",lv:"N4",tag:"kun"},
+{j:"なるほど",r:"なるほど",m:"과연·그렇군요",lv:"N4",tag:"kun"},
+{j:"くださる",r:"くださる",m:"주시다(존경)",lv:"N4",tag:"kun"},
+{j:"息子",r:"むすこ",m:"아들",lv:"N4",tag:"kun"},
+{j:"お子さん",r:"おこさん",m:"(남의) 아이·자녀(공손)",lv:"N4",tag:"kun"},
+{j:"会場",r:"かいじょう",m:"회장·행사장",lv:"N4",k:"회장",tag:"han"},
+{j:"笑う",r:"わらう",m:"웃다",lv:"N4",tag:"kun"},
+{j:"運ぶ",r:"はこぶ",m:"나르다·운반하다",lv:"N4",tag:"kun"},
+{j:"文学",r:"ぶんがく",m:"문학",lv:"N4",k:"문학",tag:"han"},
+{j:"光",r:"ひかり",m:"빛",lv:"N4",k:"광",tag:"han"},
+{j:"お見舞い",r:"おみまい",m:"문병·병문안",lv:"N4",tag:"kun"},
+{j:"席",r:"せき",m:"자리·좌석",lv:"N4",k:"석",tag:"han"},
+{j:"～様",r:"～さま",m:"모양·방식",lv:"N4",k:"양",tag:"han"},
+{j:"ご存じ",r:"ごぞんじ",m:"알고 계시다(존경)",lv:"N4",tag:"kun"},
+{j:"下る",r:"さがる",m:"내려가다·떨어지다",lv:"N4",tag:"kun"},
+{j:"字",r:"じ",m:"글자·문자",lv:"N4",k:"자",tag:"han"},
+{j:"アジア",r:"アジア",m:"아시아",lv:"N4",tag:"kana"},
+{j:"褒める",r:"ほめる",m:"칭찬하다",lv:"N4",tag:"kun"},
+{j:"あ",r:"あ",m:"아(감탄)",lv:"N4",tag:"kun"},
+{j:"最も",r:"もっとも",m:"가장",lv:"N4",k:"최",tag:"han"},
+{j:"合う",r:"あう",m:"맞다·어울리다",lv:"N4",tag:"kun"},
+{j:"～代",r:"～だい",m:"~대(연령대·시대)",lv:"N4",k:"대",tag:"han"},
+{j:"最後",r:"さいご",m:"최후·마지막",lv:"N4",k:"최후",tag:"han"},
+{j:"値段",r:"ねだん",m:"가격·값",lv:"N4",tag:"kun"},
+{j:"退院",r:"たいいん",m:"퇴원",lv:"N4",k:"퇴원",tag:"han"},
+{j:"展覧会",r:"てんらんかい",m:"전람회",lv:"N4",k:"전람회",tag:"han"},
+{j:"久しぶり",r:"ひさしぶり",m:"오랜만",lv:"N4",tag:"kun"},
+{j:"カーテン",r:"カーテン",m:"커튼",lv:"N4",tag:"kana"},
+{j:"汽車",r:"きしゃ",m:"기차",lv:"N4",k:"기차",tag:"han"},
+{j:"遅れる",r:"おくれる",m:"늦다·지각하다",lv:"N4",tag:"kun"},
+{j:"見つかる",r:"みつかる",m:"발견되다·찾아지다",lv:"N4",tag:"kun"},
+{j:"召し上がる",r:"めしあがる",m:"드시다(존경)",lv:"N4",tag:"kun"},
+{j:"太る",r:"ふとる",m:"살찌다",lv:"N4",tag:"kun"},
+{j:"注射",r:"ちゅうしゃ",m:"주사",lv:"N4",k:"주사",tag:"han"},
+{j:"様",r:"よう",m:"모양·방식",lv:"N4",k:"양",tag:"han"},
+{j:"～おき",r:"～おき",m:"~마다·~간격으로",lv:"N4",tag:"kun"},
+{j:"最初",r:"さいしょ",m:"최초·처음",lv:"N4",k:"최초",tag:"han"},
+{j:"御～",r:"ご～",m:"(공손) 접두어",lv:"N4",tag:"kun"},
+{j:"安心",r:"あんしん",m:"안심",lv:"N4",k:"안심",tag:"han"},
+{j:"直る",r:"なおる",m:"고쳐지다",lv:"N4",tag:"kun"},
+{j:"集める",r:"あつめる",m:"모으다·수집하다",lv:"N4",tag:"kun"},
+{j:"直す",r:"なおす",m:"고치다·수정하다",lv:"N4",tag:"kun"},
+{j:"続く",r:"つづく",m:"계속되다",lv:"N4",tag:"kun"},
+{j:"先輩",r:"せんぱい",m:"선배",lv:"N4",k:"선배",tag:"han"},
+{j:"約束",r:"やくそく",m:"약속",lv:"N4",k:"약속",tag:"han"},
+{j:"世話",r:"せわ",m:"돌봄·신세",lv:"N4",k:"세화",tag:"han"},
+{j:"近所",r:"きんじょ",m:"근처·이웃",lv:"N4",k:"근소",tag:"han"},
+{j:"将来",r:"しょうらい",m:"장래·미래",lv:"N4",k:"장래",tag:"han"},
+{j:"億",r:"おく",m:"억",lv:"N4",k:"억",tag:"han"},
+{j:"数学",r:"すうがく",m:"수학",lv:"N4",k:"수학",tag:"han"},
+{j:"文化",r:"ぶんか",m:"문화",lv:"N4",k:"문화",tag:"han"},
+{j:"払う",r:"はらう",m:"지불하다·내다",lv:"N4",tag:"kun"},
+{j:"習慣",r:"しゅうかん",m:"습관",lv:"N4",k:"습관",tag:"han"},
+{j:"焼ける",r:"やける",m:"타다·구워지다",lv:"N4",tag:"kun"},
+{j:"君",r:"きみ",m:"너·~군(남성 비공식)",lv:"N4",tag:"kun"},
+{j:"冷える",r:"ひえる",m:"차가워지다·식다",lv:"N4",tag:"kun"},
+{j:"点く",r:"つく",m:"켜지다·불이 들어오다",lv:"N4",tag:"kun"},
+{j:"この間",r:"このあいだ",m:"요전에·얼마 전",lv:"N4",tag:"kun"},
+{j:"格好",r:"かっこう",m:"모습·꼴·모양",lv:"N4",tag:"kun"},
+{j:"続ける",r:"つづける",m:"계속하다",lv:"N4",tag:"kun"},
+{j:"落す",r:"おとす",m:"떨어뜨리다·잃다",lv:"N4",tag:"kun"},
+{j:"出発",r:"しゅっぱつ",m:"출발",lv:"N4",k:"출발",tag:"han"},
+{j:"拝見",r:"はいけん",m:"(삼가) 보다·봄(겸양)",lv:"N4",k:"배견",tag:"han"},
+{j:"割れる",r:"われる",m:"깨지다·쪼개지다",lv:"N4",tag:"kun"},
+{j:"背中",r:"せなか",m:"등·등줄기",lv:"N4",tag:"kun"},
+{j:"新聞社",r:"しんぶんしゃ",m:"신문사",lv:"N4",k:"신문사",tag:"han"},
+{j:"いじめる",r:"いじめる",m:"괴롭히다",lv:"N4",tag:"kun"},
+{j:"回る",r:"まわる",m:"돌다·돌아다니다",lv:"N4",tag:"kun"},
+{j:"～君",r:"～くん",m:"너·~군(남성 비공식)",lv:"N4",tag:"kun"},
+{j:"おっしゃる",r:"おっしゃる",m:"말씀하시다(존경)",lv:"N4",tag:"kun"},
+{j:"眠い",r:"ねむい",m:"졸리다",lv:"N4",tag:"kun"},
+{j:"濡れる",r:"ぬれる",m:"젖다",lv:"N4",tag:"kun"},
+{j:"倒れる",r:"たおれる",m:"쓰러지다·넘어지다",lv:"N4",tag:"kun"},
+{j:"スーパー",r:"スーパー",m:"슈퍼마켓",lv:"N4",tag:"kana"},
+{j:"アクセサリー",r:"アクセサリー",m:"액세서리·장신구",lv:"N4",tag:"kana"},
+{j:"考える",r:"かんがえる",m:"생각하다·고려하다",lv:"N4",tag:"kun"},
+{j:"向かう",r:"むかう",m:"향하다·마주하다",lv:"N4",tag:"kun"},
+{j:"自由",r:"じゆう",m:"자유",lv:"N4",k:"자유",tag:"han"},
+{j:"仕方",r:"しかた",m:"방법·방식",lv:"N4",tag:"kun"},
+{j:"首",r:"くび",m:"목",lv:"N4",tag:"kun"},
+{j:"程",r:"ほど",m:"정도",lv:"N4",k:"정도",tag:"han"},
+{j:"代わり",r:"かわり",m:"대신·교체",lv:"N4",k:"대",tag:"han"},
+{j:"失敗",r:"しっぱい",m:"실패",lv:"N4",k:"실패",tag:"han"},
+{j:"工業",r:"こうぎょう",m:"공업",lv:"N4",k:"공업",tag:"han"},
+{j:"移る",r:"うつる",m:"이동하다·옮기다",lv:"N4",tag:"kun"},
+{j:"スーツケース",r:"スーツケース",m:"여행 가방·트렁크",lv:"N4",tag:"kana"},
+{j:"ひげ",r:"ひげ",m:"수염",lv:"N4",tag:"kun"},
+{j:"研究室",r:"けんきゅうしつ",m:"연구실",lv:"N4",k:"연구실",tag:"han"},
+{j:"工場",r:"こうじょう",m:"공장",lv:"N4",k:"공장",tag:"han"},
+{j:"紹介",r:"しょうかい",m:"소개",lv:"N4",k:"소개",tag:"han"},
+{j:"けれど",r:"けれど",m:"하지만·그렇지만",lv:"N4",tag:"kun"},
+{j:"舟",r:"ふね",m:"배·보트",lv:"N4",tag:"kun"},
+{j:"動く",r:"うごく",m:"움직이다",lv:"N4",tag:"kun"},
+{j:"～ついて",r:"～ついて",m:"~에 대해",lv:"N4",tag:"kun"},
+{j:"コンサート",r:"コンサート",m:"콘서트",lv:"N4",tag:"kana"},
+{j:"虫",r:"むし",m:"벌레·곤충",lv:"N4",tag:"kun"},
+{j:"優しい",r:"やさしい",m:"상냥하다·쉽다",lv:"N4",tag:"kun"},
+{j:"コンピュータ",r:"コンピュータ",m:"컴퓨터",lv:"N4",tag:"kana"},
+{j:"植える",r:"うえる",m:"심다",lv:"N4",tag:"kun"},
+{j:"両方",r:"りょうほう",m:"양쪽·둘 다",lv:"N4",k:"양방",tag:"han"},
+{j:"汚れる",r:"よごれる",m:"더러워지다",lv:"N4",tag:"kun"},
+{j:"水泳",r:"すいえい",m:"수영",lv:"N4",k:"수영",tag:"han"},
+{j:"経験",r:"けいけん",m:"경험",lv:"N4",k:"경험",tag:"han"},
+{j:"勝つ",r:"かつ",m:"이기다·승리하다",lv:"N4",tag:"kun"},
+{j:"砂",r:"すな",m:"모래",lv:"N4",tag:"kun"},
+{j:"警察",r:"けいさつ",m:"경찰",lv:"N4",k:"경찰",tag:"han"},
+{j:"取り替える",r:"とりかえる",m:"교환하다·바꾸다",lv:"N4",tag:"kun"},
+{j:"急ぐ",r:"いそぐ",m:"서두르다·급히 하다",lv:"N4",tag:"kun"},
+{j:"簡単",r:"かんたん",m:"간단함",lv:"N4",k:"간단",tag:"han"},
+{j:"参る",r:"まいる",m:"가다·오다(겸양)",lv:"N4",tag:"kun"},
+{j:"全然",r:"ぜんぜん",m:"전혀(부정)·완전히",lv:"N4",k:"전연",tag:"han"},
+{j:"特別",r:"とくべつ",m:"특별함",lv:"N4",k:"특별",tag:"han"},
+{j:"復習",r:"ふくしゅう",m:"복습",lv:"N4",k:"복습",tag:"han"},
+{j:"間に合う",r:"まにあう",m:"시간에 맞다·늦지 않다",lv:"N4",tag:"kun"},
+{j:"役に立つ",r:"やくにたつ",m:"도움이 되다",lv:"N4",tag:"kun"},
+{j:"もうすぐ",r:"もうすぐ",m:"곧·이제 곧",lv:"N4",tag:"kun"},
+{j:"真中",r:"まんなか",m:"한가운데·중앙",lv:"N4",tag:"kun"},
+{j:"戻る",r:"もどる",m:"돌아오다·되돌아가다",lv:"N4",tag:"kun"},
+{j:"研究",r:"けんきゅう",m:"연구",lv:"N4",k:"연구",tag:"han"},
+{j:"ケーキ",r:"ケーキ",m:"케이크",lv:"N4",tag:"kana"},
+{j:"草",r:"くさ",m:"풀·잔디",lv:"N4",tag:"kun"},
+{j:"込む",r:"こむ",m:"붐비다·혼잡하다",lv:"N4",tag:"kun"},
+{j:"この頃",r:"このごろ",m:"요즘·근래",lv:"N4",tag:"kun"},
+{j:"訪ねる",r:"たずねる",m:"방문하다",lv:"N4",tag:"kun"},
+{j:"下げる",r:"さげる",m:"낮추다·내리다",lv:"N4",tag:"kun"},
+{j:"花見",r:"はなみ",m:"꽃구경·벚꽃놀이",lv:"N4",k:"화견",tag:"han"},
+{j:"途中",r:"とちゅう",m:"도중·중간",lv:"N4",k:"도중",tag:"han"},
+{j:"入院",r:"にゅういん",m:"입원",lv:"N4",k:"입원",tag:"han"},
+{j:"乗り換える",r:"のりかえる",m:"갈아타다·환승하다",lv:"N4",tag:"kun"},
+{j:"別れる",r:"わかれる",m:"헤어지다",lv:"N4",tag:"kun"},
+{j:"～町",r:"～ちょう",m:"~정(행정 단위)",lv:"N4",k:"정",tag:"han"},
+{j:"安全",r:"あんぜん",m:"안전",lv:"N4",k:"안전",tag:"han"},
+{j:"看護婦",r:"かんごふ",m:"간호사",lv:"N4",k:"간호부",tag:"han"},
+{j:"見物",r:"けんぶつ",m:"구경",lv:"N4",k:"견물",tag:"han"},
+{j:"相談",r:"そうだん",m:"상담·의논",lv:"N4",k:"상담",tag:"han"},
+{j:"ガソリンスタンド",r:"ガソリンスタンド",m:"주유소",lv:"N4",tag:"kana"},
+{j:"テニス",r:"テニス",m:"테니스",lv:"N4",tag:"kana"},
+{j:"眠る",r:"ねむる",m:"자다·잠들다",lv:"N4",tag:"kun"},
+{j:"上がる",r:"あがる",m:"오르다·올라가다",lv:"N4",tag:"kun"},
+{j:"翻訳",r:"ほんやく",m:"번역",lv:"N4",k:"번역",tag:"han"},
+{j:"食事",r:"しょくじ",m:"식사",lv:"N4",k:"식사",tag:"han"},
+{j:"お陰",r:"おかげ",m:"덕분에",lv:"N4",tag:"kun"},
+{j:"娘",r:"むすめ",m:"딸",lv:"N4",tag:"kun"},
+{j:"湯",r:"ゆ",m:"뜨거운 물·탕",lv:"N4",tag:"kun"},
+{j:"競争",r:"きょうそう",m:"경쟁",lv:"N4",k:"경쟁",tag:"han"},
+{j:"会議",r:"かいぎ",m:"회의",lv:"N4",k:"회의",tag:"han"},
+{j:"湖",r:"みずうみ",m:"호수",lv:"N4",k:"호수",tag:"han"},
+{j:"集まる",r:"あつまる",m:"모이다",lv:"N4",tag:"kun"},
+{j:"～にくい",r:"～にくい",m:"~하기 어렵다",lv:"N4",tag:"kun"},
+{j:"生活",r:"せいかつ",m:"생활·생계",lv:"N4",k:"생활",tag:"han"},
+{j:"糸",r:"いと",m:"실·thread",lv:"N4",tag:"kun"},
+{j:"関係",r:"かんけい",m:"관계",lv:"N4",k:"관계",tag:"han"},
+{j:"ピアノ",r:"ピアノ",m:"피아노",lv:"N4",tag:"kana"},
+{j:"～目",r:"～め",m:"~번째",lv:"N4",k:"목",tag:"han"},
+{j:"番組",r:"ばんぐみ",m:"(방송) 프로그램",lv:"N4",k:"번조",tag:"han"},
+{j:"急",r:"きゅう",m:"급함·갑작스러움",lv:"N4",k:"급",tag:"han"},
+{j:"棚",r:"たな",m:"선반",lv:"N4",tag:"kun"},
+{j:"木綿",r:"もめん",m:"면·무명",lv:"N4",k:"목면",tag:"han"},
+{j:"輸出",r:"ゆしゅつ",m:"수출",lv:"N4",k:"수출",tag:"han"},
+{j:"タイプ",r:"タイプ",m:"타입·유형",lv:"N4",tag:"kana"},
+{j:"すり",r:"すり",m:"소매치기",lv:"N4",tag:"kun"},
+{j:"嬉しい",r:"うれしい",m:"기쁘다·반갑다",lv:"N4",tag:"kun"},
+{j:"アルコール",r:"アルコール",m:"알코올",lv:"N4",tag:"kana"},
+{j:"ソフト",r:"ソフト",m:"소프트·소프트웨어",lv:"N4",tag:"kana"},
+{j:"神社",r:"じんじゃ",m:"신사(신토 사원)",lv:"N4",k:"신사",tag:"han"},
+{j:"大分",r:"だいぶ",m:"꽤·상당히",lv:"N4",k:"대분",tag:"han"},
+{j:"楽しみ",r:"たのしみ",m:"즐거움·기대",lv:"N4",tag:"kun"},
+{j:"趣味",r:"しゅみ",m:"취미",lv:"N4",k:"취미",tag:"han"},
+{j:"電報",r:"でんぽう",m:"전보",lv:"N4",k:"전보",tag:"han"},
+{j:"家内",r:"かない",m:"아내(자신의)",lv:"N4",k:"가내",tag:"han"},
+{j:"指",r:"ゆび",m:"손가락",lv:"N4",tag:"kun"},
+{j:"これから",r:"これから",m:"앞으로·이제부터",lv:"N4",tag:"kun"},
+{j:"たまに",r:"たまに",m:"가끔·드물게",lv:"N4",tag:"kun"},
+{j:"社会",r:"しゃかい",m:"사회",lv:"N4",k:"사회",tag:"han"}
+];
+const WMAP={};WORDS.forEach(w=>WMAP[w.j]=w);
+
+/* ═══ STORE ═══ */
+const KEY="tsukin_n4_v2";let mem={},storageOk=true;
+function loadStore(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}catch(e){return mem._d||null;}}
+function saveStore(){try{localStorage.setItem(KEY,JSON.stringify(state));storageOk=true;}catch(e){mem._d=state;storageOk=false;}}
+
+const DEFAULT={progress:{},history:{},newPerDay:15,levels:["N5","N4"],showFuri:false,recallGate:true,
+  streak:0,lastDay:null,theme:null,examDate:"2026-12-06",milestonesSeen:{}};
+let state=Object.assign({},DEFAULT,loadStore()||{});
+state.progress=state.progress||{};state.history=state.history||{};state.milestonesSeen=state.milestonesSeen||{};
+
+/* ═══ UTILS ═══ */
+function todayNum(){const d=new Date();return Math.floor((d-d.getTimezoneOffset()*60000)/86400000);}
+function dayToDate(n){return new Date(n*86400000+new Date().getTimezoneOffset()*60000);}
+function fmtDate(n){const d=dayToDate(n);const wd=["일","월","화","수","목","금","토"][d.getDay()];return(d.getMonth()+1)+"/"+d.getDate()+"("+wd+")";}
+function relDay(d){return d===0?"오늘":d===1?"내일":d===2?"모레":d+"일 후";}
+function daysUntilExam(){const ex=new Date(state.examDate||"2026-12-06");const now=new Date();const diff=Math.ceil((ex-now)/86400000);return Math.max(0,diff);}
+function paceNeeded(){
+  const pool=eligible(),t=todayNum(),days=daysUntilExam();
+  const rem=pool.filter(w=>!state.progress[w.j]).length;
+  if(days<=0||rem<=0)return null;
+  return Math.ceil(rem/days);
+}
+
+/* ═══ SESSION ═══ */
+let queue=[],sessionTotal=0,current=null,extra=false;
+let stage=0,tracing=false,tctx=null,tdrawing=false;
+let sessionPos=0,sessionNewCount=0,sessionGoodCount=0,sessionTotalGrades=0;
+
+function eligible(){return WORDS.filter(w=>state.levels.includes(w.lv));}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+function buildSession(){
+  const t=todayNum(),pool=eligible(),due=[],fresh=[];
+  pool.forEach(w=>{const p=state.progress[w.j];if(p){if(p.due<=t)due.push(w.j);}else fresh.push(w.j);});
+  const h=state.history[t]||{};const used=h.newLearned||0;
+  let q=extra?Math.min(fresh.length,10):Math.max(0,state.newPerDay-used);
+  shuffle(due);shuffle(fresh);queue=due.concat(fresh.slice(0,q));shuffle(queue);
+  sessionTotal=queue.length;sessionPos=0;
+  sessionNewCount=0;sessionGoodCount=0;sessionTotalGrades=0;
+}
+
+/* ═══ SRS ═══ */
+function preview(w){const p=state.progress[w.j],isNew=!p;
+  if(isNew)return{hard:"1일",good:"2일"};
+  return{hard:fmt(Math.max(1,Math.round((p.iv||1)*1.2))),good:fmt(Math.max(1,Math.round((p.iv||1)*(p.ease||2.4))))};
+}
+function fmt(d){return d>=30?Math.round(d/30)+"개월":d+"일";}
+function applyGrade(w,g){
+  const t=todayNum();let p=state.progress[w.j];const wasNew=!p;
+  if(wasNew)p={reps:0,ease:2.4,iv:0,due:t,lapses:0};
+  if(g===0){p.ease=Math.max(1.3,(p.ease||2.4)-0.2);p.iv=0;p.due=t;if(!wasNew)p.lapses=(p.lapses||0)+1;}
+  else if(g===1){p.ease=Math.max(1.3,(p.ease||2.4)-0.05);p.iv=wasNew?1:Math.max(1,Math.round((p.iv||1)*1.2));p.due=t+p.iv;p.reps=(p.reps||0)+1;}
+  else{p.iv=wasNew?2:Math.max(1,Math.round((p.iv||1)*(p.ease||2.4)));p.due=t+p.iv;p.reps=(p.reps||0)+1;}
+  state.progress[w.j]=p;
+  const h=state.history[t]||{grades:0,newLearned:0,correct:0,again:0};
+  h.grades++;if(wasNew)h.newLearned++;if(g===2)h.correct++;if(g===0)h.again=(h.again||0)+1;
+  state.history[t]=h;
+  sessionTotalGrades++;if(wasNew)sessionNewCount++;if(g===2)sessionGoodCount++;
+  updateStreak();saveStore();
+  checkMilestones();
+  return g===0;
+}
+function updateStreak(){const t=todayNum();if(state.lastDay===t)return;
+  if(state.lastDay===t-1)state.streak=(state.streak||0)+1;else state.streak=1;state.lastDay=t;}
+
+/* ═══ AUDIO ═══ */
+function speakWord(text){
+  if(!('speechSynthesis' in window))return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='ja-JP';u.rate=0.85;
+  window.speechSynthesis.speak(u);
+}
+function speakCurrent(){if(current)speakWord(WMAP[current].j);}
+
+/* ═══ MILESTONES ═══ */
+const ML=[
+  {id:'first',msg:'🎉 첫 단어를 학습했습니다!',check:()=>Object.keys(state.progress).length>=1},
+  {id:'c10',msg:'✨ 10단어 학습 돌파!',check:()=>Object.keys(state.progress).length>=10},
+  {id:'c50',msg:'🌟 50단어 학습 돌파!',check:()=>Object.keys(state.progress).length>=50},
+  {id:'c100',msg:'💪 100단어 돌파!',check:()=>Object.keys(state.progress).length>=100},
+  {id:'c300',msg:'🚀 300단어 돌파!',check:()=>Object.keys(state.progress).length>=300},
+  {id:'n5done',msg:'🎊 N5 전 범위 학습 시작!',check:()=>WORDS.filter(w=>w.lv==='N5').every(w=>state.progress[w.j])},
+  {id:'n4start',msg:'📗 N4 첫 단어 학습!',check:()=>WORDS.filter(w=>w.lv==='N4').some(w=>state.progress[w.j])},
+  {id:'s7',msg:'🔥 7일 연속 학습!',check:()=>state.streak>=7},
+  {id:'s14',msg:'🏆 14일 연속 학습!',check:()=>state.streak>=14},
+  {id:'m100',msg:'⭐ 100단어 숙달!',check:()=>WORDS.filter(w=>wordLevel(w)===5).length>=100},
+  {id:'m500',msg:'👑 500단어 숙달!',check:()=>WORDS.filter(w=>wordLevel(w)===5).length>=500},
+];
+function checkMilestones(){
+  for(const m of ML){
+    if(!state.milestonesSeen[m.id]&&m.check()){
+      state.milestonesSeen[m.id]=true;saveStore();showMilestone(m.msg);break;
+    }
+  }
+}
+let mlTimeout=null;
+function showMilestone(msg){
+  const el=document.getElementById('milestonePopup');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(mlTimeout);mlTimeout=setTimeout(()=>el.classList.remove('show'),3000);
+}
+function showToast(msg){
+  const el=document.getElementById('milestonePopup');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(mlTimeout);mlTimeout=setTimeout(()=>el.classList.remove('show'),2400);
+}
+let confirmResolve=null;
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    confirmResolve=resolve;
+    document.getElementById('confirmMsg').textContent=msg;
+    document.getElementById('confirmModal').classList.add('show');
+  });
+}
+function hideConfirm(result){
+  document.getElementById('confirmModal').classList.remove('show');
+  if(confirmResolve){confirmResolve(result);confirmResolve=null;}
+}
+
+/* ═══ GRADE HELP ═══ */
+function showGradeHelp(){document.getElementById('gradeHelp').classList.add('show');}
+function hideGradeHelp(){document.getElementById('gradeHelp').classList.remove('show');}
+
+/* ═══ RENDER (study) ═══ */
+const $=id=>document.getElementById(id);
+function setStage(s){
+  stage=s;
+  const rf=$('reading'),mb=$('meaningBlock'),rb=$('revealBtn'),mc=$('meaningCtrls'),th=$('tapHint'),ab=$('audioBtn');
+  const showR=(s>=1)||state.showFuri;
+  rf.style.display=showR?'block':'none';
+  mb.style.display=s>=2?'flex':'none';
+  ab.classList.toggle('show',s>=2);
+  if(s>=2){rb.style.display='none';mc.style.display='block';}
+  else{rb.style.display='block';mc.style.display='none';
+    rb.textContent=(s===0&&state.recallGate&&!state.showFuri)?'읽기 확인':'뜻 보기';}
+  if(s===0){th.style.display='block';th.textContent=(state.recallGate&&!state.showFuri)?'읽기를 떠올린 뒤 탭':'읽기·뜻을 떠올린 뒤 탭';}
+  else if(s===1){th.style.display='block';th.textContent='뜻을 떠올린 뒤 탭';}
+  else th.style.display='none';
+}
+function showCard(){
+  closeTrace();
+  const w=WMAP[current];
+  $('word').textContent=w.j;$('cardLv').textContent=w.lv;
+  $('reading').textContent=w.r;$('meaning').textContent=w.m;
+  const hb=$('hanja');
+  if(w.tag==='han'&&w.k)hb.innerHTML=`<div class="han-chip"><span class="hj jp">${w.j}</span><span class="ar">→</span><span class="ko">${w.k}</span></div><span class="tagline">한자어 · 한국 한자음과 연결</span>`;
+  else if(w.tag==='kana')hb.innerHTML=`<span class="tagline">가타카나 외래어</span>`;
+  else hb.innerHTML=`<span class="tagline">훈독·고유어 · 읽기 따로 암기</span>`;
+  const p=state.progress[w.j],hard=p&&(p.lapses||0)>=2;
+  $('traceBtn').classList.toggle('hot',!!hard);
+  $('traceBtn').textContent=hard?'✍ 자주 틀리는 글자 — 따라쓰기':'✍ 손가락으로 따라쓰기';
+  const iv=preview(w);$('ivHard').textContent=iv.hard;$('ivGood').textContent=iv.good;
+  $('pbar').style.width=(sessionTotal?((sessionPos/sessionTotal)*100):0)+'%';
+  $('sessionCounter').textContent=sessionTotal?`${sessionPos} / ${sessionTotal}`:' ';
+  setStage(0);
+}
+function advance(){
+  if(tracing)return;
+  if(stage===0){(state.recallGate&&!state.showFuri)?setStage(1):setStage(2);}
+  else if(stage===1)setStage(2);
+}
+function grade(g){
+  if(stage<2){advance();return;}
+  const w=WMAP[current];const requeue=applyGrade(w,g);
+  if(requeue)queue.splice(Math.min(queue.length,8),0,current);
+  const btns=document.querySelectorAll('#gradeRow .grade');
+  btns.forEach(b=>b.style.pointerEvents='none');
+  if(btns[g])btns[g].style.opacity='1';
+  btns.forEach((b,i)=>{if(i!==g)b.style.opacity='.35';});
+  setTimeout(()=>{
+    btns.forEach(b=>{b.style.pointerEvents='';b.style.opacity='';});
+    next();
+  },180);
+}
+function next(){
+  if(queue.length===0){done();return;}
+  current=queue.shift();sessionPos++;
+  $('controls').style.display='block';$('emptyPane').style.display='none';
+  $('card').style.display='flex';$('card').parentElement.querySelector('.pbar-wrap').style.display='block';
+  $('sessionCounter').style.display='block';
+  showCard();renderStats();
+}
+function done(){
+  extra=false;
+  $('card').style.display='none';
+  $('card').parentElement.querySelector('.pbar-wrap').style.display='none';
+  $('sessionCounter').style.display='none';
+  $('controls').style.display='none';$('emptyPane').style.display='flex';
+  const pool=eligible(),remNew=pool.filter(w=>!state.progress[w.j]).length;
+  $('paneTitle').textContent='오늘 학습 완료';
+  if(remNew>0){$('paneText').textContent=`아직 안 배운 단어가 ${remNew}개 남아 있습니다.`;$('paneBtn').style.display='inline-block';}
+  else{$('paneText').textContent='선택한 레벨의 모든 단어를 학습 중입니다.';$('paneBtn').style.display='none';}
+  const t=todayNum(),h=state.history[t]||{};
+  const g=h.grades||0,c=h.correct||0,nl=h.newLearned||0;
+  const acc=g>0?Math.round((c/g)*100):0;
+  $('sessionStats').innerHTML=g?`<div class="sstat"><div class="sv jp">${g}</div><div class="sl">총 카드</div></div>
+    <div class="sstat"><div class="sv jp">${nl}</div><div class="sl">새 단어</div></div>
+    <div class="sstat"><div class="sv jp">${acc}%</div><div class="sl">정답률</div></div>`:'';
+  renderStats();
+}
+function extraSession(){extra=true;buildSession();if(queue.length)next();else done();}
+function startStudy(){buildSession();if(queue.length)next();else done();}
+
+/* ═══ TRACE ═══ */
+function openTrace(){
+  const w=WMAP[current],g=$('traceGuide');
+  g.textContent=w.j;const n=[...w.j].length;
+  g.style.fontSize=(n>=3?62:n===2?106:158)+'px';
+  $('jishoLink').href='https://jisho.org/search/'+encodeURIComponent(w.j)+'%20%23kanji';
+  $('traceLayer').classList.add('show');tracing=true;
+  requestAnimationFrame(setupCanvas);
+}
+function setupCanvas(){
+  const c=$('traceCanvas'),r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);
+  tctx=c.getContext('2d');tctx.setTransform(dpr,0,0,dpr,0,0);
+  tctx.lineCap='round';tctx.lineJoin='round';tctx.lineWidth=8;
+  tctx.strokeStyle=(getComputedStyle(document.documentElement).getPropertyValue('--ink')||'#0a0a0a').trim();
+}
+function tpos(c,e){const r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+function clearTrace(e){if(e)e.stopPropagation();const c=$('traceCanvas');if(tctx)tctx.clearRect(0,0,c.width,c.height);}
+function closeTrace(e){if(e)e.stopPropagation();$('traceLayer').classList.remove('show');tracing=false;tdrawing=false;}
+
+/* ═══ STATS ═══ */
+function animateNum(el,to){
+  if(!el)return;
+  const from=parseInt(el.textContent,10);
+  if(isNaN(from)||from===to){el.textContent=to;return;}
+  const dur=320,start=performance.now();
+  function step(now){
+    const p=Math.min(1,(now-start)/dur);
+    const eased=1-Math.pow(1-p,3);
+    const val=Math.round(from+(to-from)*eased);
+    el.textContent=val;
+    if(p<1)requestAnimationFrame(step);else el.textContent=to;
+  }
+  requestAnimationFrame(step);
+}
+function renderStats(){
+  const t=todayNum(),pool=eligible();let due=0,learned=0;
+  pool.forEach(w=>{const p=state.progress[w.j];if(p){learned++;if(p.due<=t)due++;}});
+  animateNum($('sDue'),due);animateNum($('sLearned'),learned);animateNum($('sStreak'),state.streak||0);
+  const days=daysUntilExam();$('sDday').textContent=days>0?'D-'+days:'당일';
+  const pace=paceNeeded();
+  const pb=$('paceBar');
+  if(pace!==null){
+    const warn=pace>state.newPerDay;
+    pb.innerHTML=`<span>오늘 목표 달성 시 완료 예정: </span><span class="pval ${warn?'pwarn':''}">${days}일 남음 · 하루 ${pace}단어 필요</span>`;
+    if(warn)pb.innerHTML+=`<span class="pwarn"> (설정(${state.newPerDay}개)보다 많음)</span>`;
+  }else pb.innerHTML=`<span>시험까지 <span class="pval">${days}일</span> · 모든 단어 학습 시작 완료</span>`;
+}
+
+/* ═══ REVIEW ═══ */
+function renderReview(){
+  const t=todayNum(),pool=eligible(),el=$('reviewScroll');
+  const dueNow=[],future={};
+  pool.forEach(w=>{const p=state.progress[w.j];if(!p)return;const diff=p.due-t;
+    if(diff<=0)dueNow.push(w);else(future[diff]=future[diff]||[]).push(w);});
+  dueNow.sort((a,b)=>a.lv.localeCompare(b.lv));
+  let h=`<div class="sec-title">오늘 복습할 단어<span class="count-pill">${dueNow.length}</span></div>`;
+  if(dueNow.length)h+=`<div class="wlist">`+dueNow.map(rowHTML).join('')+`</div>`;
+  else h+=`<div class="empty-note">오늘 복습할 단어가 없습니다.<br><span onclick="switchTab('study')" class="empty-btn">학습 탭으로 →</span></div>`;
+  const days=Object.keys(future).map(Number).sort((a,b)=>a-b).slice(0,10);
+  h+=`<div class="sec-title">예정된 복습</div>`;
+  if(days.length){
+    const max=Math.max(...days.map(d=>future[d].length));
+    h+=`<div class="forecast">`+days.map(d=>{
+      const cnt=future[d].length,w=Math.max(6,(cnt/max)*100);
+      return `<div class="frow"><span class="fday">${relDay(d)} · <small style="color:var(--ink3)">${fmtDate(t+d)}</small></span><span class="fbar-wrap"><span class="fbar" style="width:${w}%"></span></span><span class="fcnt jp">${cnt}</span></div>`;
+    }).join('')+`</div>`;
+  }else h+=`<div class="empty-note">예정된 복습이 없습니다.<br>학습을 시작하면 자동으로 생성됩니다.</div>`;
+  el.innerHTML=h;
+}
+function rowHTML(w){return `<div class="wrow"><span class="wj jp">${w.j}</span><div class="wmid"><div class="wr jp">${w.r}</div><div class="wm">${w.m}</div></div><span class="wlv">${w.lv}</span></div>`;}
+
+/* ═══ RECORDS ═══ */
+function renderRecords(){
+  const t=todayNum(),pool=eligible(),el=$('recordsScroll');
+  let learned=0;pool.forEach(w=>{if(state.progress[w.j])learned++;});
+  const studyDays=Object.keys(state.history).length;
+  let total=0;Object.values(state.history).forEach(h=>total+=h.grades||0);
+  let h=`<div class="scope-note"><strong>📝 학습 범위 안내</strong>이 앱은 N4+N5 어휘(약 25%) 영역을 커버합니다. 합격을 위해 <strong>문법 · 독해 · 청해</strong> 학습도 병행하세요. 추천: 겐키, 민나노니홍고, <a href="https://bunpro.jp" target="_blank">Bunpro</a></div>`;
+  h+=`<div class="summary"><div class="sm"><div class="n jp">${learned}</div><div class="l">학습한 단어</div></div><div class="sm"><div class="n jp">${state.streak||0}</div><div class="l">연속 일수</div></div><div class="sm"><div class="n jp">${studyDays}</div><div class="l">학습한 날</div></div><div class="sm"><div class="n jp">${total}</div><div class="l">총 카드</div></div></div>`;
+  h+=`<div class="sec-title">일별 학습 기록</div>`;
+  const days=Object.keys(state.history).map(Number).sort((a,b)=>b-a).slice(0,30);
+  if(days.length){
+    const max=Math.max(...days.map(d=>state.history[d].grades||0),1);
+    h+=`<div class="hist">`+days.map(d=>{
+      const hd=state.history[d],nl=hd.newLearned||0,rev=(hd.grades||0)-nl,tot=hd.grades||0;
+      const nw=(nl/max)*100,rw=(rev/max)*100;
+      const acc=tot>0?Math.round(((hd.correct||0)/tot)*100):0;
+      return `<div class="hrow"><span class="hdate">${fmtDate(d)}</span><span class="hbar-wrap"><span class="hbar-new" style="width:${nw}%"></span><span class="hbar-rev" style="width:${rw}%"></span></span><span class="hnum jp">${tot}</span></div>`;
+    }).join('')+`</div>`;
+    h+=`<div class="legend"><span><i style="background:var(--ink)"></i>새 단어</span><span><i style="background:var(--ink3)"></i>복습</span></div>`;
+  }else h+=`<div class="empty-note">아직 학습 기록이 없습니다.<br><span onclick="switchTab('study')" class="empty-btn">첫 학습 시작하기 →</span></div>`;
+  el.innerHTML=h;
+}
+
+/* ═══ WORDS TAB ═══ */
+const ML_LABEL=["미학습","학습 시작","익히는 중","다지는 중","거의 완성","숙달"];
+function wordLevel(w){const p=state.progress[w.j];if(!p)return 0;const iv=p.iv||0;
+  if(iv<2)return 1;if(iv<7)return 2;if(iv<21)return 3;if(iv<60)return 4;return 5;}
+let wFilter={search:'',level:'all',tag:'all',status:'all'};
+
+function buildWChips(){
+  const chips=[
+    {label:'전체',key:'level',val:'all'},{label:'N5',key:'level',val:'N5'},{label:'N4',key:'level',val:'N4'},
+    {label:'한자어',key:'tag',val:'han'},{label:'훈독',key:'tag',val:'kun'},{label:'외래어',key:'tag',val:'kana'},
+    {label:'미학습',key:'status',val:'new'},{label:'학습중',key:'status',val:'prog'},{label:'숙달',key:'status',val:'done'},
+  ];
+  $('wchips').innerHTML=chips.map(c=>`<div class="wchip${isChipOn(c)?' on':''}" onclick="setWFilter('${c.key}','${c.val}')">${c.label}</div>`).join('');
+}
+function isChipOn(c){return wFilter[c.key]===c.val||(c.key==='level'&&c.val==='all'&&wFilter.level==='all');}
+
+function setWFilter(key,val){
+  if(key==='level'){wFilter.level=val;}
+  else if(key==='tag'){wFilter.tag=wFilter.tag===val?'all':val;}
+  else if(key==='status'){wFilter.status=wFilter.status===val?'all':val;}
+  buildWChips();renderWordsFiltered();
+}
+function renderWordsFiltered(){
+  const search=($('wsearch')||{value:''}).value.toLowerCase();
+  wFilter.search=search;
+  const cb=$('wsearchClear');if(cb)cb.classList.toggle('show',search.length>0);
+  const t=todayNum();
+  let pool=WORDS.filter(w=>state.levels.includes(w.lv));
+  if(wFilter.level!=='all')pool=pool.filter(w=>w.lv===wFilter.level);
+  if(wFilter.tag!=='all')pool=pool.filter(w=>w.tag===wFilter.tag);
+  if(wFilter.status==='new')pool=pool.filter(w=>!state.progress[w.j]);
+  else if(wFilter.status==='prog')pool=pool.filter(w=>{const l=wordLevel(w);return l>0&&l<5;});
+  else if(wFilter.status==='done')pool=pool.filter(w=>wordLevel(w)===5);
+  if(search)pool=pool.filter(w=>w.j.includes(search)||w.m.toLowerCase().includes(search)||(w.r&&w.r.includes(search)));
+  const el=$('wordsScroll');
+  if(pool.length===0){el.innerHTML=`<div class="no-results">일치하는 단어가 없습니다.</div>`;return;}
+  let mastered=0;pool.forEach(w=>{if(wordLevel(w)===5)mastered++;});
+  let h=`<div class="w-top"><div><div class="wt-n jp">${mastered}</div><div class="wt-l">숙달 / ${pool.length}개 표시중</div></div><div class="wt-leg">링이 찰수록 숙달도 ↑<br>● 오늘 복습 대상</div></div>`;
+  const lvGroups=wFilter.level!=='all'?[wFilter.level]:['N5','N4'];
+  lvGroups.forEach(lv=>{
+    const ws=pool.filter(w=>w.lv===lv);if(!ws.length)return;
+    let m=0,s=0;ws.forEach(w=>{const l=wordLevel(w);if(l===5)m++;else if(l>0)s++;});
+    const dp=(m/ws.length)*100,sp=(s/ws.length)*100;
+    h+=`<div class="wsec-head"><span class="wsec-title">${lv}</span><span class="wsec-meta">숙달 ${m} · 학습중 ${s} · 표시 ${ws.length}</span></div>`;
+    h+=`<div class="wsec-bar"><span class="b-done" style="width:${dp}%"></span><span class="b-prog" style="width:${sp}%"></span></div>`;
+    h+=`<div class="wgrid">`+ws.map(w=>{
+      const l=wordLevel(w),pct=l*20,p=state.progress[w.j],due=p&&p.due<=t;
+      const cls=(l===0?'new':'')+(l===5?' done':'')+(due?' due':'');
+      const cap=w.m.split(/[·,;]/)[0].trim();
+      return `<div class="node-wrap"><button class="node ${cls}" style="--pct:${pct}" onclick="openWord('${w.j}')"><span class="inner"><span class="kj jp">${w.j}</span></span></button><span class="node-cap">${cap}</span></div>`;
+    }).join('')+`</div>`;
+  });
+  el.innerHTML=h;
+}
+function renderWords(){buildWChips();renderWordsFiltered();}
+function clearWSearch(){const el=$('wsearch');if(el){el.value='';el.focus();renderWordsFiltered();}}
+
+function openWord(j){
+  const w=WMAP[j];if(!w)return;const t=todayNum(),p=state.progress[j],l=wordLevel(w);
+  let due=!p?"아직 학습 전":p.due<=t?"오늘 복습 대상":"다음 복습 "+relDay(p.due-t)+" ("+fmtDate(p.due)+")";
+  const tagTxt=(w.tag==='han'&&w.k)?`한자어 · 한국 한자음 「${w.k}」`:(w.tag==='kana'?'가타카나 외래어':'훈독·고유어');
+  let dots='';for(let i=1;i<=5;i++)dots+=`<i class="${i<=l?'on':''}"></i>`;
+  const lapse=p&&p.lapses?` · 틀린 횟수 ${p.lapses}회`:'';
+  $('wSheetBody').innerHTML=`<div class="ws-kj jp">${w.j}</div><div class="ws-r jp">${w.r}</div>
+    <div class="ws-m">${w.m}</div><div class="ws-tag">${tagTxt} · ${w.lv}</div>
+    <div class="ws-mastery"><div class="ws-dots">${dots}</div>
+    <div class="ws-mlabel">${ML_LABEL[l]} (${l}/5)</div>
+    <div class="ws-sub">${due}${lapse}</div></div>
+    <div class="ws-actions">
+      <button onclick="speakWord('${w.j}');event.preventDefault()">🔊 발음 듣기</button>
+      <a href="https://jisho.org/search/${encodeURIComponent(w.j)}" target="_blank" rel="noopener">사전에서 보기 →</a>
+    </div>`;
+  $('wOverlay').classList.add('show');$('wSheet').classList.add('show');
+}
+function closeWord(){$('wOverlay').classList.remove('show');$('wSheet').classList.remove('show');}
+
+/* ═══ TABS ═══ */
+const TAB_ORDER=['study','review','records','words','settings'];
+let currentTab='study';
+function switchTab(name){
+  if(name===currentTab)return;
+  const fromIdx=TAB_ORDER.indexOf(currentTab),toIdx=TAB_ORDER.indexOf(name);
+  const goingRight=toIdx>fromIdx;
+  currentTab=name;
+  document.querySelectorAll('section').forEach(s=>{
+    const isTarget=s.id===name;
+    s.classList.toggle('active',isTarget);
+    s.classList.remove('tab-enter-right','tab-enter-left');
+    if(isTarget){
+      void s.offsetWidth;
+      s.classList.add(goingRight?'tab-enter-right':'tab-enter-left');
+    }
+  });
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
+  if(name==='review')renderReview();
+  if(name==='records')renderRecords();
+  if(name==='words')renderWords();
+  if(name==='settings')syncSheet();
+}
+
+/* ═══ SETTINGS ═══ */
+function syncSheet(){
+  $('newVal').textContent=state.newPerDay;
+  $('examDateInput').value=state.examDate||'2026-12-06';
+  document.querySelectorAll('.lvchip').forEach(c=>c.classList.toggle('on',state.levels.includes(c.dataset.lv)));
+  $('furiToggle').classList.toggle('on',state.showFuri);
+  $('recallToggle').classList.toggle('on',state.recallGate!==false);
+  $('saveNote').textContent=storageOk?'N5+N4 1,371단어 · 진도와 기록 자동 저장':'⚠ 저장이 차단된 환경입니다. 파일을 받아 브라우저로 열면 보존됩니다.';
+}
+function changeNew(d){state.newPerDay=Math.max(5,Math.min(50,state.newPerDay+d));$('newVal').textContent=state.newPerDay;saveStore();}
+function toggleLv(lv){const i=state.levels.indexOf(lv);if(i>=0){if(state.levels.length>1)state.levels.splice(i,1);}else state.levels.push(lv);saveStore();syncSheet();startStudy();renderStats();}
+function toggleFuri(){state.showFuri=!state.showFuri;saveStore();syncSheet();}
+function toggleRecall(){state.recallGate=!(state.recallGate!==false);saveStore();syncSheet();}
+function changeExamDate(v){state.examDate=v;saveStore();renderStats();}
+async function resetAll(){
+  const ok=await showConfirm('모든 학습 진도와 기록을 지웁니다. 계속할까요?');
+  if(!ok)return;
+  state=Object.assign({},DEFAULT);state.progress={};state.history={};saveStore();syncSheet();startStudy();renderStats();
+  showToast('진도와 기록이 초기화되었습니다');
+}
+function exportCSV(){
+  const rows=[['date','studied','new','review','correct','accuracy']];
+  Object.keys(state.history).map(Number).sort((a,b)=>a-b).forEach(d=>{
+    const h=state.history[d],dt=dayToDate(d);
+    const acc=h.grades>0?Math.round((h.correct||0)/h.grades*100):0;
+    rows.push([dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'),h.grades||0,h.newLearned||0,(h.grades||0)-(h.newLearned||0),h.correct||0,acc+'%']);
+  });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='jlpt_n4_study_log.csv';a.click();URL.revokeObjectURL(url);
+}
+function exportData(){
+  const payload={app:'tsukin_n4',version:2,exportedAt:new Date().toISOString(),state:state};
+  const json=JSON.stringify(payload,null,2);
+  const blob=new Blob([json],{type:'application/json'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const dt=new Date();const stamp=dt.getFullYear()+String(dt.getMonth()+1).padStart(2,'0')+String(dt.getDate()).padStart(2,'0');
+  a.href=url;a.download='jlpt_n4_backup_'+stamp+'.json';a.click();URL.revokeObjectURL(url);
+}
+function importData(ev){
+  const file=ev.target.files&&ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      const payload=JSON.parse(e.target.result);
+      const incoming=payload && payload.state ? payload.state : payload;
+      if(!incoming || typeof incoming!=='object' || !incoming.progress){
+        showToast('올바른 백업 파일이 아닙니다');return;
+      }
+      const ok=await showConfirm('현재 진도를 가져온 데이터로 덮어씁니다. 계속할까요?');
+      if(!ok)return;
+      state=Object.assign({},DEFAULT,incoming);
+      state.progress=state.progress||{};state.history=state.history||{};state.milestonesSeen=state.milestonesSeen||{};
+      saveStore();syncSheet();startStudy();renderStats();
+      showToast('가져오기 완료 · 진도가 복원되었습니다');
+    }catch(err){showToast('파일을 읽는 중 오류가 발생했습니다');}
+    ev.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+/* ═══ CANVAS LISTENERS ═══ */
+(function(){
+  const cv=$('traceCanvas');
+  cv.addEventListener('pointerdown',e=>{if(!tracing||!tctx)return;tdrawing=true;const p=tpos(cv,e);tctx.beginPath();tctx.moveTo(p.x,p.y);try{cv.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+  cv.addEventListener('pointermove',e=>{if(!tdrawing||!tctx)return;const p=tpos(cv,e);tctx.lineTo(p.x,p.y);tctx.stroke();e.preventDefault();});
+  cv.addEventListener('pointerup',e=>{tdrawing=false;e.preventDefault();});
+  cv.addEventListener('pointercancel',()=>{tdrawing=false;});
+  window.addEventListener('resize',()=>{if(tracing)setupCanvas();});
+})();
+
+/* ═══ INIT ═══ */
+syncSheet();renderStats();startStudy();
+</script>
+</body>
+</html>
