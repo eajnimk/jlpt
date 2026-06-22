@@ -19,10 +19,10 @@
   --jp:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;position:fixed;width:100%;overscroll-behavior:none}
+html,body{height:100%;overscroll-behavior:contain}
 body{font-family:var(--ko);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
 .jp{font-family:var(--jp)}
-#app{max-width:520px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);overflow:hidden}
+#app{max-width:520px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 
 /* ── header ── */
 header{padding:16px 20px 12px;border-bottom:1px solid var(--line)}
@@ -42,7 +42,7 @@ header{padding:16px 20px 12px;border-bottom:1px solid var(--line)}
 .pace-bar .pwarn{color:#b45309}
 
 /* ── sections ── */
-section{display:none;flex:1;flex-direction:column}
+section{display:none;flex:1;flex-direction:column;min-height:0}
 section.active{display:flex}
 section.tab-enter-right{animation:tabInRight .26s cubic-bezier(.22,.8,.32,1)}
 section.tab-enter-left{animation:tabInLeft .26s cubic-bezier(.22,.8,.32,1)}
@@ -50,7 +50,7 @@ section.tab-enter-left{animation:tabInLeft .26s cubic-bezier(.22,.8,.32,1)}
 @keyframes tabInLeft{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
 
 /* ── study ── */
-#study{padding:14px 20px 6px}
+#study{padding:14px 20px 6px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .pbar-wrap{position:relative;height:8px;background:var(--line);border-radius:4px;margin-bottom:5px;overflow:hidden}
 .pbar{height:100%;background:var(--ink);width:0;border-radius:4px;transition:width .35s}
 .session-counter{text-align:right;font-size:11px;color:var(--ink3);margin-bottom:12px;font-family:var(--ko)}
